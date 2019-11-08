@@ -8,6 +8,13 @@
 #include <windows.h>
 #include <mmsystem.h>
 
+int getLeftScore(double x, double y, double z);
+int getRightScore(double x, double y, double z);
+int getCeilScore(double x, double y, double z);
+int getEndScore(double x, double y, double z);
+int getFloorScore(double x, double y, double z);
+
+
 double move = 0.5;
 int inc = 1;
 int rounds = 1;
@@ -77,15 +84,24 @@ void drawWeaponTop(double thick, double len) {
 }
 
 void controlReflection(double x, double y, double z) {
-	if(shoot)
+	//if(shoot)
 	if (x <= 0|| x  >= 8) {
+		if (x <= 0)
+			printf("Left score is %d\n", getLeftScore(x, y, z));
+		if (x >= 8)
+			printf("Right score is %d\n", getRightScore(x, y, z));
 		horizontalMove *= -1;
 		intialZ = z;
 		intialX = x;
 		intialY = y;
 		forwadBullet = 0;
+
 	}
 	if (y <= 0.3 || y >= 7.7) {
+		if (y <= 0.3)
+			printf("Floor score is %d\n", getFloorScore(x, y, z));
+		if (y >= 7)
+			printf("Ceil score is %d\n", getCeilScore(x, y, z));
 		//printf("hooooooooo");
 		verticalMove *= -1;
 		intialZ = z;
@@ -163,6 +179,8 @@ void drawBullet(double thick, double len, int ballNumber) {
 	*/
 	
 	if (currentBulletPositionZ <= 0) {
+		//end wall
+		//printf("End wall score %d", getEndScore())
 		
 		if (rounds < 3)
 			reset();
@@ -227,6 +245,41 @@ void drawWeapon() {
 }
 
 //weapon end------------------------------------
+
+//score
+
+//red = 1, green = 2, blue = 3
+
+int getLeftScore(double x, double y, double z){
+	int row = y / 1;
+	int column = z / 1;
+	row %= 3;
+	if (row == 0) {
+		return (column % 3) + 1;
+	}
+	if (row == 1) {
+		return ((column + 2) % 3) + 1;
+	}
+	else {
+		return ((column + 1) % 3) + 1;
+	}
+}
+
+int getRightScore(double x, double y, double z) {
+	return getLeftScore(x - 8, y, z);
+}
+
+int getFloorScore(double x, double y, double z) {
+	return getLeftScore(y, x, z);
+}
+int getCeilScore(double x, double y, double z) {
+	return getFloorScore(x, y, z);
+}
+int getEndScore(double x, double y, double z) {
+	return getLeftScore(z, x, y);
+}
+
+//score
 
 void drawJackPart() {
 	glPushMatrix();
