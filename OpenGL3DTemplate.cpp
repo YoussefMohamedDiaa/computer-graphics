@@ -70,6 +70,10 @@ char* instructions = "SCORING Red: -1 Green: 2 Blue: 3 ";
 int shootLeft = 3;
 int totalScore = 0;
 
+bool laser = false;
+bool screenUp = false;
+double screenAngle = 90;
+
 void rest() {
 	horizontalMove = 0;
 	verticalMove = 0;
@@ -139,7 +143,7 @@ void drawWeaponBase(double thick, double len) {
 	glColor3f(0, 0, 0);
 	glPushMatrix();
 	glTranslated(4, len / 2, 8);
-	glScaled(thick, len, thick);
+	glScaled(thick, len + 0.5, thick);
 	glutSolidCube(1.0);
 	glPopMatrix();
 }
@@ -147,11 +151,119 @@ void drawWeaponBase(double thick, double len) {
 void drawWeaponTop(double thick, double len) {
 	glColor3f(0, 0, 0);
 	glPushMatrix();
+	glColor3f(1, 183.0 / 255.0, 51.0 / 255.0);
 	glTranslated(4, len / 2 + len, 8);
-	glScaled(2 * thick, 1, 4 * thick);
+	glScaled(2 * thick, 0.5, 4 * thick);
 	glutSolidCube(1.0);
 	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(4, len / 2 + len + 0.3, 8);
+	glScaled((2 * thick) / 2.0, 0.5 / 2.0, (4 * thick) / 4.0);
+	glutSolidCube(1.0);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(4, len / 2 + len + 0.3, 8);
+	glRotated(screenAngle, 1, 0, 0);
+	glTranslated(-4, -(len / 2 + len + 0.3), -8);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glColor4f(1, 0, 0, 0.5);
+	glBegin(GL_POLYGON);
+	glVertex3f(4 - 0.4, len / 2 + len + 0.4, 8);
+	glVertex3f(4 + 0.4, len / 2 + len + 0.4, 8);
+	glVertex3f(4 + 0.4, len / 2 + len + 0.4 + 0.9, 8);
+	glVertex3f(4 - 0.4, len / 2 + len + 0.4 + 0.9, 8);
+	glEnd();
+
+
+
+	glColor3f(0, 0, 0);
+	glBegin(GL_LINE_LOOP);
+	glVertex3f(4 - 0.4, len / 2 + len + 0.4, 8);
+	glVertex3f(4 + 0.4, len / 2 + len + 0.4, 8);
+	glVertex3f(4 + 0.4, len / 2 + len + 0.4 + 0.9, 8);
+	glVertex3f(4 - 0.4, len / 2 + len + 0.4 + 0.9, 8);
+	glEnd();
+
+	glBegin(GL_LINES);
+	glVertex3f(4 - 0.3, len / 2 + len + 0.4 + 0.45, 8.01);
+	glVertex3f(3.9, len / 2 + len + 0.4 + 0.45, 8.01);
+	glVertex3f(4.1, len / 2 + len + 0.4 + 0.45, 8.01);
+	glVertex3f(4 + 0.3, len / 2 + len + 0.4 + 0.45, 8.01);
+
+	glVertex3f(4, len / 2 + len + 0.4 + 0.45 + 0.1, 8.01);
+	glVertex3f(4, len / 2 + len + 0.4 + 0.45 + 0.3, 8.01);
+	glVertex3f(4, len / 2 + len + 0.4 + 0.45 - 0.1, 8.01);
+	glVertex3f(4, len / 2 + len + 0.4 + 0.45 - 0.3, 8.01);
+
+	glEnd();
+
+
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(4, len / 2 + len + 0.3, 8);
+	glScaled((2 * thick) / 2.0, 0.5 / 2.0, (4 * thick) / 4.0);
+	glutSolidCube(1.0);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(4, len / 2 + len, 8.5);
+	glScaled((2 * thick) / 2.0, 0.5 / 2.0, (4 * thick) / 2.0);
+	glutSolidCube(1.0);
+	glPopMatrix();
+
+	glPushMatrix();
+	glColor3f(1, 183.0 / 255.0, 51.0 / 255.0);
+	glTranslated(4, len / 2 + len, 8.8);
+	glScaled((2 * thick) / 4.0, 0.5, (4 * thick) / 4.0);
+	glutSolidCube(1.0);
+	glPopMatrix();
+
+	glColor3f(0, 0, 0);
+	glPushMatrix();
+	glTranslated(4, len / 2 + 0.6, 8.3);
+	glScaled(thick / 3, len, thick / 3);
+	glutSolidCube(1.0);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(4, len / 2 + 0.77, 7.8);
+	glRotated(30, 1, 0, 0);
+	glTranslated(-4, -(len / 2 + 0.77), -7.8);
+	glTranslated(4, len / 2 + 0.77, 7.8);
+	glScaled(thick / 3, len, thick / 3);
+	glutSolidCube(1.0);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(4, len / 2 + 0.9, 6.5);
+	GLUquadricObj *quad;
+	quad = gluNewQuadric();
+	gluCylinder(quad, 0.16, 0.16, 1.3, 50, 50);
+	glPopMatrix();
+
+	if (laser) {
+		glPushMatrix();
+		glColor3f(1, 0, 0);
+		glBegin(GL_LINES);
+		glVertex3f(4, len / 2 + len, 8);
+		glVertex3f(4, len / 2 + len, 0);
+		glEnd();
+	}
+
+	glPushMatrix();
+	glColor3f(0, 0, 0);
+	glTranslated(4, len / 2 + len, 7.8);
+	glutSolidTorus(0.1, 0.3, 50, 90);
+	glEnd();
+
+	glPopMatrix();
 }
+
 
 void controlReflection(double x, double y, double z) {
 	//if(shoot)
@@ -240,7 +352,7 @@ void drawBullet(double thick, double len) {
 	}
 
 	//glScaled(2 * thick, 1, 4 * thick);
-	glutSolidSphere(0.2, 20, 20);
+	glutSolidSphere(0.15, 20, 20);
 	glPopMatrix();
 }
 
@@ -392,6 +504,7 @@ void drawTable(double topWid, double topThick, double legThick, double legLen) {
 }
 
 void setupLights() {
+	
 	GLfloat ambient[] = { 0.7f, 0.7f, 0.7, 1.0f };
 	GLfloat diffuse[] = { 0.6f, 0.6f, 0.6, 1.0f };
 	GLfloat specular[] = { 1.0f, 1.0f, 1.0, 1.0f };
@@ -405,6 +518,7 @@ void setupLights() {
 	GLfloat lightPosition[] = { -7.0f, 6.0f, 3.0f, 0.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, lightIntensity);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightIntensity);
+	
 }
 
 void setupCamera() {
@@ -546,6 +660,16 @@ void Display() {
 
 void Anim()
 {
+	if (screenUp) {
+		if (screenAngle > 0) {
+			screenAngle -= 0.1;
+		}
+	}
+	else {
+		if (screenAngle < 90) {
+			screenAngle += 0.1;
+		}
+	}
 	if (shoot) {
 		if (going) {
 			if (!replaying)
@@ -575,7 +699,7 @@ void Anim()
 }
 
 void keyboardFunc(int key, int x, int y) {
-	if (!replaying&&!shoot) {
+	if (!replaying && !shoot) {
 		switch (key) {
 		case GLUT_KEY_DOWN:verticalMove -= 10; verticalMoveWeapon -= 10; break;
 		case GLUT_KEY_UP:verticalMove += 10; verticalMoveWeapon += 10; break;
@@ -594,6 +718,8 @@ void keyboardOtherButtons(unsigned char key, int x, int y) {
 		case ' ': shoot = true & (rounds < 4); if (shoot) { prevVerticalMove = verticalMove; prevVerticalMoveWeapon = verticalMoveWeapon; prevHorizontalMove = horizontalMove; prevHorizontalMoveWeapon = horizontalMoveWeapon; } break;
 		case 'c': cameraEnhanced = !cameraEnhanced; break;
 		case 'r': replaying = true & !shoot & (shootLeft < 3); shoot = replaying; break;
+		case 'l': laser = !laser; break;
+		case 's': screenUp = !screenUp; break;
 		default:
 			break;
 		}
