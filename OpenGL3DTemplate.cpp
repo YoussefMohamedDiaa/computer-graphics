@@ -8,6 +8,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 
+
 int getLeftScore(double x, double y, double z);
 int getRightScore(double x, double y, double z);
 int getCeilScore(double x, double y, double z);
@@ -50,42 +51,46 @@ double thirdSavedX = 0;
 double thirdSavedY = 0;
 double thirdSavedZ = 0;
 
+char* instructions = "SCORING red: 1 green 2 blue 3 ";
+int shootLeft = 3;
+int totalScore = 0;
+
 void rest() {
-	 horizontalMove = 0;
-	 verticalMove = 0;
-	 horizontalMoveWeapon = 0;
-	 verticalMoveWeapon = 0;
-	 shoot = false;
+	horizontalMove = 0;
+	verticalMove = 0;
+	horizontalMoveWeapon = 0;
+	verticalMoveWeapon = 0;
+	shoot = false;
 
-	 going = true;
-	 forwadBullet = 0;
-	 backwadBullet = 0;
+	going = true;
+	forwadBullet = 0;
+	backwadBullet = 0;
 
 
-	 intialX = 4;
-	 intialY = 1 / 2 + 1 + 0.4;
-	 intialZ = 7.4;
-	 if (rounds == 1) {
-		  firstSavedX = currentBulletPositionX;
-		  firstSavedY = currentBulletPositionY;
-		  firstSavedZ = currentBulletPositionZ;
-	 }
-	 if (rounds == 2) {
-		 secondSavedX = currentBulletPositionX;
-		 secondSavedY = currentBulletPositionY;
-		 secondSavedZ = currentBulletPositionZ;
-	 }
+	intialX = 4;
+	intialY = 1 / 2 + 1 + 0.4;
+	intialZ = 7.4;
+	if (rounds == 1) {
+		firstSavedX = currentBulletPositionX;
+		firstSavedY = currentBulletPositionY;
+		firstSavedZ = currentBulletPositionZ;
+	}
+	if (rounds == 2) {
+		secondSavedX = currentBulletPositionX;
+		secondSavedY = currentBulletPositionY;
+		secondSavedZ = currentBulletPositionZ;
+	}
 
-	 if (rounds == 3) {
-		  thirdSavedX = currentBulletPositionX;
-		  thirdSavedY = currentBulletPositionY;
-		  thirdSavedZ = currentBulletPositionZ;
-	 }
-	 currentBulletPositionX = -1;
-	 currentBulletPositionY = -1;
-	 currentBulletPositionZ = -1;
+	if (rounds == 3) {
+		thirdSavedX = currentBulletPositionX;
+		thirdSavedY = currentBulletPositionY;
+		thirdSavedZ = currentBulletPositionZ;
+	}
+	currentBulletPositionX = -1;
+	currentBulletPositionY = -1;
+	currentBulletPositionZ = -1;
 
-	 rounds++;
+	rounds++;
 }
 
 void drawWall(double thickness, int offSetX, int OffSetY, int OffSetz) {
@@ -128,10 +133,14 @@ void drawWeaponTop(double thick, double len) {
 void controlReflection(double x, double y, double z) {
 	//if(shoot)
 	if (x <= 0 || x >= 8) {
-		if (x <= 0)
+		if (x <= 0) {
+			totalScore += getLeftScore(x, y, z);
 			printf("Left score is %d\n", getLeftScore(x, y, z));
-		if (x >= 8)
+		}
+		if (x >= 8) {
+			totalScore += getRightScore(x, y, z);
 			printf("Right score is %d\n", getRightScore(x, y, z));
+		}
 		horizontalMove *= -1;
 		intialZ = z;
 		intialX = x;
@@ -140,11 +149,15 @@ void controlReflection(double x, double y, double z) {
 
 	}
 	if (y <= 0.3 || y >= 7.7) {
-		if (y <= 0.3)
+		if (y <= 0.3) {
+			totalScore += getFloorScore(x, y, z);
 			printf("Floor score is %d\n", getFloorScore(x, y, z));
-		if (y >= 7.7)
+		}
+		if (y >= 7.7) {
+			totalScore += getCeilScore(x, y, z);
 			printf("Ceil score is %d\n", getCeilScore(x, y, z));
-	
+		}
+
 		verticalMove *= -1;
 		intialZ = z;
 		intialX = x;
@@ -158,7 +171,7 @@ void controlReflection(double x, double y, double z) {
 void drawBullet(double thick, double len) {
 
 	glColor3f(1, 1, 1);
-	
+
 
 	glPushMatrix();
 
@@ -180,11 +193,14 @@ void drawBullet(double thick, double len) {
 
 
 	if (currentBulletPositionZ <= 0) {
-		
-		    printf("End score is %d\n", getEndScore(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ));
-			going = false;
-			rest();
-		
+
+		totalScore += getEndScore(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ);
+		printf("End score is %d\n", getEndScore(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ));
+		going = false;
+		if (rounds < 4)
+			shootLeft--;
+		rest();
+
 	}
 
 	//glScaled(2 * thick, 1, 4 * thick);
@@ -240,17 +256,17 @@ void drawWeapon() {
 		glRotated(verticalMove, 1, 0, 0);
 		glRotated(-horizontalMove, 0, 1, 0);
 		glTranslated(-4, -(1 / 2 + 1), -8);
-	
+
 		if (rounds < 4)
 			drawBullet(0.2, 1);
 		glPopMatrix();
 
 	}
 	else {
-	
+
 		if (rounds < 4)
-		drawBullet(0.2, 1);
-	
+			drawBullet(0.2, 1);
+
 	}
 
 
@@ -426,6 +442,30 @@ void createCeil() {
 }
 //room end---------------------------------
 
+void print(int x, int y, int z, char* string)
+{
+	int len, i;
+
+	glRasterPos3f(x, y, z);
+
+	len = (int)strlen(string);
+
+	for (i = 0; i < len; i++)
+	{
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, string[i]);
+	}
+}
+
+void dashBoard() {
+	char* score[20];
+	sprintf((char*)score, "Score : %d", totalScore);
+	print(4, 7, 7, (char*)score);
+	char* shots[20];
+	sprintf((char*)shots, "Shots left : %d", shootLeft);
+	print(6, 7, 7, (char*)shots);
+	print(0, 7, 7, (char*)(instructions));
+}
+
 void Display() {
 	setupLights();
 	setupCamera();
@@ -434,6 +474,10 @@ void Display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glScaled(0.05, 0.05, 0.05);
+
+	//dashboard
+	dashBoard();
+	//
 
 	//room-----------------------------------------------
 	createGround();
