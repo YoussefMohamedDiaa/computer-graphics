@@ -29,6 +29,9 @@ double horizontalMoveWeapon = 0;
 double verticalMoveWeapon = 0;
 double prevHorizontalMoveWeapon = 0;
 double prevVerticalMoveWeapon = 0;
+int numberOfHorizontalReflections = 0;
+int numberOfVerticalReflections = 0;
+
 
 bool shoot = false;
 
@@ -72,6 +75,11 @@ void rest() {
 	verticalMove = 0;
 	horizontalMoveWeapon = 0;
 	verticalMoveWeapon = 0;
+	if (numberOfHorizontalReflections % 2 == 1)
+		prevHorizontalMove *= -1;
+	if (numberOfVerticalReflections % 2 == 1)
+		prevVerticalMove *= -1;
+	numberOfHorizontalReflections = 0; numberOfVerticalReflections = 0;
 	shoot = false;
 
 	going = true;
@@ -158,8 +166,10 @@ void controlReflection(double x, double y, double z) {
 				//printf("Right score is %d\n", getRightScore(x, y, z));
 			}
 		}
-		if (replaying)
+		if (replaying) {
 			prevHorizontalMove *= -1;
+			numberOfHorizontalReflections++;
+		}
 		else
 			horizontalMove *= -1;
 		intialZ = z;
@@ -179,8 +189,10 @@ void controlReflection(double x, double y, double z) {
 				//printf("Ceil score is %d\n", getCeilScore(x, y, z));
 			}
 		}
-		if (replaying)
+		if (replaying) {
 			prevVerticalMove *= -1;
+			numberOfVerticalReflections++;
+		}
 		else
 			verticalMove *= -1;
 		intialZ = z;
