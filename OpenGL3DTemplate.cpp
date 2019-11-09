@@ -8,10 +8,114 @@
 #include <windows.h>
 #include <mmsystem.h>
 
+// forwardBullet, bool replaying, dont increment score, store previous horizontal vertical move aka previous position
+
+int getLeftScore(double x, double y, double z);
+int getRightScore(double x, double y, double z);
+int getCeilScore(double x, double y, double z);
+int getEndScore(double x, double y, double z);
+int getFloorScore(double x, double y, double z);
+void setupLights();
+
 double move = 0.5;
 int inc = 1;
+int rounds = 1;
+
 double horizontalMove = 0;
 double verticalMove = 0;
+double prevHorizontalMove = 0;
+double prevVerticalMove = 0;
+double horizontalMoveWeapon = 0;
+double verticalMoveWeapon = 0;
+double prevHorizontalMoveWeapon = 0;
+double prevVerticalMoveWeapon = 0;
+int numberOfHorizontalReflections = 0;
+int numberOfVerticalReflections = 0;
+
+
+bool shoot = false;
+
+bool going = true;
+bool cameraEnhanced = true;
+double forwardBullet = 0;
+double backwadBullet = 0;
+double forwardCam = 0;
+double horizontalCam = 0;
+double verticalCam = 0;
+
+double currentBulletPositionX = -1;
+double currentBulletPositionY = -1;
+double currentBulletPositionZ = -1;
+
+double intialX = 4;
+double intialY = 1 / 2 + 1 + 0.4;
+double intialZ = 7.4;
+
+
+double firstSavedX = 0;
+double firstSavedY = 0;
+double firstSavedZ = 0;
+
+double secondSavedX = 0;
+double secondSavedY = 0;
+double secondSavedZ = 0;
+
+double thirdSavedX = 0;
+double thirdSavedY = 0;
+double thirdSavedZ = 0;
+
+bool replaying = false;
+
+char* instructions = "SCORING Red: -1 Green: 2 Blue: 3 ";
+int shootLeft = 3;
+int totalScore = 0;
+
+void rest() {
+	horizontalMove = 0;
+	verticalMove = 0;
+	horizontalMoveWeapon = 0;
+	verticalMoveWeapon = 0;
+	if (numberOfHorizontalReflections % 2 == 1)
+		prevHorizontalMove *= -1;
+	if (numberOfVerticalReflections % 2 == 1)
+		prevVerticalMove *= -1;
+	numberOfHorizontalReflections = 0; numberOfVerticalReflections = 0;
+	shoot = false;
+
+	going = true;
+	forwardBullet = 0;
+	backwadBullet = 0;
+
+
+	intialX = 4;
+	intialY = 1 / 2 + 1 + 0.4;
+	intialZ = 7.4;
+	if (!replaying) {
+		if (rounds == 1) {
+			firstSavedX = currentBulletPositionX;
+			firstSavedY = currentBulletPositionY;
+			firstSavedZ = currentBulletPositionZ;
+		}
+		if (rounds == 2) {
+			secondSavedX = currentBulletPositionX;
+			secondSavedY = currentBulletPositionY;
+			secondSavedZ = currentBulletPositionZ;
+		}
+
+		if (rounds == 3) {
+			thirdSavedX = currentBulletPositionX;
+			thirdSavedY = currentBulletPositionY;
+			thirdSavedZ = currentBulletPositionZ;
+		}
+		currentBulletPositionX = -1;
+		currentBulletPositionY = -1;
+		currentBulletPositionZ = -1;
+	}
+	if (!replaying)
+		rounds++;
+	replaying = false;
+}
+
 void drawWall(double thickness, int offSetX, int OffSetY, int OffSetz) {
 	glPushMatrix();
 	glTranslated(0.5 + offSetX, 0.5 * thickness + OffSetY, 0.5 + OffSetz);
@@ -49,29 +153,200 @@ void drawWeaponTop(double thick, double len) {
 	glPopMatrix();
 }
 
+void controlReflection(double x, double y, double z) {
+	//if(shoot)
+	if (x <= 0 || x >= 8) {
+		if (!replaying) {
+			if (x <= 0) {
+				totalScore += getLeftScore(x, y, z);
+				//printf("Left score is %d\n", getLeftScore(x, y, z));
+			}
+			if (x >= 8) {
+				totalScore += getRightScore(x, y, z);
+				//printf("Right score is %d\n", getRightScore(x, y, z));
+			}
+		}
+		if (replaying) {
+			prevHorizontalMove *= -1;
+			numberOfHorizontalReflections++;
+		}
+		else
+			horizontalMove *= -1;
+		intialZ = z;
+		intialX = x;
+		intialY = y;
+		forwardBullet = 0;
+
+	}
+	if (y <= 0.3 || y >= 7.7) {
+		if (!replaying) {
+			if (y <= 0.3) {
+				totalScore += getFloorScore(x, y, z);
+				//printf("Floor score is %d\n", getFloorScore(x, y, z));
+			}
+			if (y >= 7.7) {
+				totalScore += getCeilScore(x, y, z);
+				//printf("Ceil score is %d\n", getCeilScore(x, y, z));
+			}
+		}
+		if (replaying) {
+			prevVerticalMove *= -1;
+			numberOfVerticalReflections++;
+		}
+		else
+			verticalMove *= -1;
+		intialZ = z;
+		intialX = x;
+		intialY = y;
+		forwardBullet = 0;
+	}
+
+}
+
+
 void drawBullet(double thick, double len) {
+
 	glColor3f(1, 1, 1);
+
+
 	glPushMatrix();
-	glTranslated(4, len / 2 + len+0.4, 7.4);
+
+	//glTranslated(intialX, intialY, intialZ - forwadBullet + backwadBullet);
+	glTranslated(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ);
+	currentBulletPositionZ = intialZ - forwardBullet + backwadBullet;
+	if ((replaying ? prevVerticalMove : verticalMove) > 0)
+		currentBulletPositionY = intialY + abs(currentBulletPositionZ - intialZ)*tan(abs(replaying ? prevVerticalMove : verticalMove)*0.0174533);
+	else
+		currentBulletPositionY = intialY - abs(currentBulletPositionZ - intialZ)*tan(abs(replaying ? prevVerticalMove : verticalMove)*0.0174533);
+
+	if ((replaying ? prevHorizontalMove : horizontalMove) > 0) {
+		currentBulletPositionX = intialX + abs(currentBulletPositionZ - intialZ) * tan(abs(replaying ? prevHorizontalMove : horizontalMove)*0.0174533);
+	}
+	else {
+		currentBulletPositionX = intialX - abs(currentBulletPositionZ - intialZ) * tan(abs(replaying ? prevHorizontalMove : horizontalMove)*0.0174533);
+	}
+	controlReflection(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ);
+
+
+	if (currentBulletPositionZ <= 0) {
+		if (!replaying)
+			totalScore += getEndScore(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ);
+		//printf("End score is %d\n", getEndScore(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ));
+		going = false;
+		if (rounds < 4 && !replaying)
+			shootLeft--;
+		rest();
+
+	}
+
 	//glScaled(2 * thick, 1, 4 * thick);
-	glutSolidSphere(0.2,20,20);
+	glutSolidSphere(0.2, 20, 20);
+	glPopMatrix();
+}
+
+void preserveHistory() {
+	glPushMatrix();
+	glColor3f(1, 1, 1);
+	if (rounds > 1) {
+		glPushMatrix();
+		glTranslated(firstSavedX, firstSavedY, firstSavedZ);
+		glutSolidSphere(0.2, 20, 20);
+		glPopMatrix();
+	}
+
+	if (rounds > 2) {
+		glPushMatrix();
+		glTranslated(secondSavedX, secondSavedY, secondSavedZ);
+		glutSolidSphere(0.2, 20, 20);
+		glPopMatrix();
+	}
+
+	if (rounds > 3) {
+		glPushMatrix();
+		glTranslated(thirdSavedX, thirdSavedY, thirdSavedZ);
+		glutSolidSphere(0.2, 20, 20);
+		glPopMatrix();
+	}
+
 	glPopMatrix();
 }
 
 void drawWeapon() {
+	preserveHistory();
 	glPushMatrix();
 	drawWeaponBase(0.2, 1);
 	//responsible for the movement of the upper part of the weapon
+	//if (!shoot) {
+	glPushMatrix();
 	glTranslated(4, (1 / 2 + 1), 8);
-	glRotated(verticalMove, 1, 0, 0);
-	glRotated(horizontalMove, 0, 1, 0);
+	glRotated(replaying ? prevVerticalMoveWeapon : verticalMoveWeapon, 1, 0, 0);
+	glRotated(replaying ? -prevHorizontalMoveWeapon : -horizontalMoveWeapon, 0, 1, 0);
 	glTranslated(-4, -(1 / 2 + 1), -8);
+	//for moving lights
+	//setupLights();
 	drawWeaponTop(0.2, 1);
-	drawBullet(0.2, 1);
+	glPopMatrix();
+	//}
+
+	if (!shoot) {
+		glPushMatrix();
+		glTranslated(4, (1 / 2 + 1), 8);
+		glRotated(replaying ? prevVerticalMove : verticalMove, 1, 0, 0);
+		glRotated(replaying ? prevHorizontalMove : -horizontalMove, 0, 1, 0);
+		glTranslated(-4, -(1 / 2 + 1), -8);
+
+		if (rounds < 4)
+			drawBullet(0.2, 1);
+		glPopMatrix();
+
+	}
+	else {
+
+		if (rounds < 4)
+			drawBullet(0.2, 1);
+
+	}
+
+
 	glPopMatrix();
 }
 
 //weapon end------------------------------------
+
+//score
+
+//red = -1, green = 2, blue = 3
+
+int getLeftScore(double x, double y, double z) {
+	int row = y / 1;
+	int column = z / 1;
+	row %= 3;
+	if (row == 0) {
+		return ((column % 3) + 1) == 1 ? -1 : (column % 3) + 1;
+	}
+	if (row == 1) {
+		return (((column + 2) % 3) + 1) == 1 ? -1 : ((column + 2) % 3) + 1;
+	}
+	else {
+		return (((column + 1) % 3) + 1) == 1 ? -1 : ((column + 1) % 3) + 1;
+	}
+}
+
+int getRightScore(double x, double y, double z) {
+	return getLeftScore(x - 8, y, z);
+}
+
+int getFloorScore(double x, double y, double z) {
+	return getLeftScore(y, x, z);
+}
+int getCeilScore(double x, double y, double z) {
+	return getFloorScore(x, y, z);
+}
+int getEndScore(double x, double y, double z) {
+	return getLeftScore(z, x, y);
+}
+
+//score
 
 void drawJackPart() {
 	glPushMatrix();
@@ -140,7 +415,7 @@ void setupCamera() {
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(-0.31 + move, -0.3 + move, 0.25 + move, 0.21, 0.2, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(-0.31 + move - horizontalCam, -0.3 + move + verticalCam, 0.25 + move - forwardCam, 0.21, 0.2, 0.0, 0.0, 1.0, 0.0);
 }
 
 //room begin---------------------------------------
@@ -205,6 +480,36 @@ void createCeil() {
 }
 //room end---------------------------------
 
+void print(int x, int y, int z, char* string)
+{
+	int len, i;
+
+	glRasterPos3f(x, y, z);
+
+	len = (int)strlen(string);
+
+	for (i = 0; i < len; i++)
+	{
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, string[i]);
+	}
+}
+
+void dashBoard() {
+	char* score[20];
+	sprintf((char*)score, "Score : %d", totalScore);
+	print(4, 7, 7, (char*)score);
+	char* shots[20];
+	sprintf((char*)shots, "Shots left : %d", shootLeft);
+	print(6, 7, 7, (char*)shots);
+	print(0, 7, 7, (char*)(instructions));
+	if (cameraEnhanced)
+		print(0, 6, 7, (char*)("Camera mode : Enhanced"));
+	else if (!cameraEnhanced)
+		print(0, 6, 7, (char*)("Camera mode : Simple"));
+	else if (replaying)
+		print(0, 6, 7, (char*)("Camera mode : Replaying"));
+}
+
 void Display() {
 	setupLights();
 	setupCamera();
@@ -212,7 +517,13 @@ void Display() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
 	glScaled(0.05, 0.05, 0.05);
+
+
+	//dashboard
+	dashBoard();
+	//
 
 	//room-----------------------------------------------
 	createGround();
@@ -226,6 +537,8 @@ void Display() {
 	drawWeapon();
 	//------------------------------------------------------
 
+
+
 	glFlush();
 
 
@@ -233,34 +546,59 @@ void Display() {
 
 void Anim()
 {
-	//horizontalMove += 1;
-	/*
-	if (inc == 1) {
-		move += 0.0001;
-		if (move >= 0.1)
-			inc = 0;
+	if (shoot) {
+		if (going) {
+			if (!replaying)
+				forwardBullet += 0.01;
+			else
+				forwardBullet += 0.001;
+			float shift = replaying ? 0.000025 : 0.00015;
+			forwardCam += shift;
+			if (cameraEnhanced) {
+				if ((replaying ? prevHorizontalMove : horizontalMove) > 0)
+					horizontalCam += shift;
+				if ((replaying ? prevHorizontalMove : horizontalMove) < 0)
+					horizontalCam -= shift;
+				if ((replaying ? prevVerticalMove : verticalMove) > 0)
+					verticalCam += shift;
+				if ((replaying ? prevVerticalMove : verticalMove) < 0)
+					verticalCam -= shift;
+			}
+		}
 	}
-	else if (inc == 0) {
-		move -= 0.0001;
-		if (move <= 0)
-			inc = 1;
+	else {
+		verticalCam = 0;
+		horizontalCam = 0;
+		forwardCam = 0;
 	}
-	*/
 	glutPostRedisplay();
 }
 
 void keyboardFunc(int key, int x, int y) {
-	//printf("ddddddddd");
-	switch (key) {
-	case GLUT_KEY_DOWN:verticalMove -= 10; break;
-	case GLUT_KEY_UP:verticalMove += 10; break;
-	case GLUT_KEY_LEFT:horizontalMove += 10; break;
-	case GLUT_KEY_RIGHT:horizontalMove -= 10; break;
+	if (!replaying&&!shoot) {
+		switch (key) {
+		case GLUT_KEY_DOWN:verticalMove -= 10; verticalMoveWeapon -= 10; prevVerticalMove = verticalMove; prevVerticalMoveWeapon = verticalMoveWeapon; break;
+		case GLUT_KEY_UP:verticalMove += 10; verticalMoveWeapon += 10; prevVerticalMove = verticalMove; prevVerticalMoveWeapon = verticalMoveWeapon; break;
+		case GLUT_KEY_LEFT:horizontalMove -= 10; horizontalMoveWeapon -= 10; prevHorizontalMove = horizontalMove; prevHorizontalMoveWeapon = horizontalMoveWeapon; break;
+		case GLUT_KEY_RIGHT:horizontalMove += 10; horizontalMoveWeapon += 10; prevHorizontalMove = horizontalMove; prevHorizontalMoveWeapon = horizontalMoveWeapon; break;
+		}
 	}
-
 }
 
-
+void keyboardOtherButtons(unsigned char key, int x, int y) {
+	//printf("%f %f %f %f\n", horizontalMove, verticalMove, horizontalMoveWeapon, verticalMoveWeapon);
+	//printf("%f %f %f %f\n", prevHorizontalMove, prevVerticalMove, prevHorizontalMoveWeapon, prevVerticalMoveWeapon);
+	if (!shoot) {
+		switch (key)
+		{
+		case ' ': shoot = true; break;
+		case 'c': cameraEnhanced = !cameraEnhanced; break;
+		case 'r': replaying = true & !shoot & (shootLeft < 3); shoot = replaying; break;
+		default:
+			break;
+		}
+	}
+}
 
 void main(int argc, char** argv) {
 	glutInit(&argc, argv);
@@ -280,11 +618,9 @@ void main(int argc, char** argv) {
 	glEnable(GL_COLOR_MATERIAL);
 
 	glShadeModel(GL_SMOOTH);
-	//glutIdleFunc(Anim);
+	glutIdleFunc(Anim);
 	glutIdleFunc(Anim);
 	glutSpecialFunc(keyboardFunc);
+	glutKeyboardFunc(keyboardOtherButtons);
 	glutMainLoop();
 }
-
-
-
