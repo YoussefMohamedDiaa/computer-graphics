@@ -14,7 +14,7 @@ int getRightScore(double x, double y, double z);
 int getCeilScore(double x, double y, double z);
 int getEndScore(double x, double y, double z);
 int getFloorScore(double x, double y, double z);
-
+void setupLights();
 
 double move = 0.5;
 int inc = 1;
@@ -27,8 +27,12 @@ double verticalMoveWeapon = 0;
 bool shoot = false;
 
 bool going = true;
+bool cameraEnhanced = true;
 double forwadBullet = 0;
 double backwadBullet = 0;
+double forwardCam = 0;
+double horizontalCam = 0;
+double verticalCam = 0;
 
 double currentBulletPositionX = -1;
 double currentBulletPositionY = -1;
@@ -246,6 +250,8 @@ void drawWeapon() {
 	glRotated(verticalMoveWeapon, 1, 0, 0);
 	glRotated(-horizontalMoveWeapon, 0, 1, 0);
 	glTranslated(-4, -(1 / 2 + 1), -8);
+	//for moving lights
+	//setupLights();
 	drawWeaponTop(0.2, 1);
 	glPopMatrix();
 	//}
@@ -377,7 +383,7 @@ void setupCamera() {
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(-0.31 + move, -0.3 + move, 0.25 + move, 0.21, 0.2, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(-0.31 + move-horizontalCam, -0.3 + move+verticalCam, 0.25 + move-forwardCam, 0.21, 0.2, 0.0, 0.0, 1.0, 0.0);
 }
 
 //room begin---------------------------------------
@@ -464,6 +470,10 @@ void dashBoard() {
 	sprintf((char*)shots, "Shots left : %d", shootLeft);
 	print(6, 7, 7, (char*)shots);
 	print(0, 7, 7, (char*)(instructions));
+	if(cameraEnhanced)
+		print(0, 6, 7, (char*)("Camera mode : Enhanced"));
+	else
+		print(0, 6, 7, (char*)("Camera mode : Simple"));
 }
 
 void Display() {
@@ -473,7 +483,9 @@ void Display() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
 	glScaled(0.05, 0.05, 0.05);
+
 
 	//dashboard
 	dashBoard();
@@ -501,9 +513,27 @@ void Display() {
 void Anim()
 {
 	if (shoot) {
-		if (going)
+		if (going) {
 			forwadBullet += 0.01;
+			forwardCam += 0.00015;
+
+			if (cameraEnhanced) {
+		    if(horizontalMove>0)
+				horizontalCam += 0.00015;
+			if (horizontalMove < 0)
+				horizontalCam -= 0.00015;
+			if (verticalMove > 0)
+				verticalCam += 0.00015;
+			if (verticalMove < 0)
+				verticalCam -= 0.00015;
+			}
+		}
 	}
+	else {
+		    verticalCam = 0;
+		    horizontalCam = 0;
+			forwardCam = 0;
+		}
 	glutPostRedisplay();
 }
 
@@ -523,6 +553,7 @@ void keyboardOtherButtons(unsigned char key, int x, int y) {
 	switch (key)
 	{
 	case ' ': shoot = true; break;
+	case 'c': cameraEnhanced = !cameraEnhanced; break;
 	default:
 		break;
 	}
