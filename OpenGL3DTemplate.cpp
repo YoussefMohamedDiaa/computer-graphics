@@ -715,11 +715,18 @@ void keyboardOtherButtons(unsigned char key, int x, int y) {
 	if (!shoot) {
 		switch (key)
 		{
-		case ' ': shoot = true & (rounds < 4); if (shoot) { prevVerticalMove = verticalMove; prevVerticalMoveWeapon = verticalMoveWeapon; prevHorizontalMove = horizontalMove; prevHorizontalMoveWeapon = horizontalMoveWeapon; } break;
+		case ' ': shoot = true & (rounds < 4); 
+			if (shoot) {
+			prevVerticalMove = verticalMove; 
+			prevVerticalMoveWeapon = verticalMoveWeapon; 
+			prevHorizontalMove = horizontalMove; 
+			prevHorizontalMoveWeapon = horizontalMoveWeapon; 
+			PlaySound(TEXT("media.io_shooting_2.wav"), NULL, SND_ASYNC);
+		} break;
 		case 'c': cameraEnhanced = !cameraEnhanced; break;
 		case 'r': replaying = true & !shoot & (shootLeft < 3); shoot = replaying; break;
 		case 'l': laser = !laser; break;
-		case 's': screenUp = !screenUp; break;
+		case 's': screenUp = !screenUp; if (screenUp) PlaySound(TEXT("media.io_weapon.wav"), NULL, SND_ASYNC); break;
 		default:
 			break;
 		}
