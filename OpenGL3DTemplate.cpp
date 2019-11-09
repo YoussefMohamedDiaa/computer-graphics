@@ -455,6 +455,7 @@ int getCeilScore(double x, double y, double z) {
 	return getFloorScore(x, y, z);
 }
 int getEndScore(double x, double y, double z) {
+	PlaySound(TEXT("media.io_sticky.wav"), NULL, SND_ASYNC);
 	return getLeftScore(z, x, y);
 }
 
