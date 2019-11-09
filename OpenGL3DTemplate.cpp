@@ -46,6 +46,48 @@ double secondSavedX = 0;
 double secondSavedY = 0;
 double secondSavedZ = 0;
 
+double thirdSavedX = 0;
+double thirdSavedY = 0;
+double thirdSavedZ = 0;
+
+void rest() {
+	 horizontalMove = 0;
+	 verticalMove = 0;
+	 horizontalMoveWeapon = 0;
+	 verticalMoveWeapon = 0;
+	 shoot = false;
+
+	 going = true;
+	 forwadBullet = 0;
+	 backwadBullet = 0;
+
+
+	 intialX = 4;
+	 intialY = 1 / 2 + 1 + 0.4;
+	 intialZ = 7.4;
+	 if (rounds == 1) {
+		  firstSavedX = currentBulletPositionX;
+		  firstSavedY = currentBulletPositionY;
+		  firstSavedZ = currentBulletPositionZ;
+	 }
+	 if (rounds == 2) {
+		 secondSavedX = currentBulletPositionX;
+		 secondSavedY = currentBulletPositionY;
+		 secondSavedZ = currentBulletPositionZ;
+	 }
+
+	 if (rounds == 3) {
+		  thirdSavedX = currentBulletPositionX;
+		  thirdSavedY = currentBulletPositionY;
+		  thirdSavedZ = currentBulletPositionZ;
+	 }
+	 currentBulletPositionX = -1;
+	 currentBulletPositionY = -1;
+	 currentBulletPositionZ = -1;
+
+	 rounds++;
+}
+
 void drawWall(double thickness, int offSetX, int OffSetY, int OffSetz) {
 	glPushMatrix();
 	glTranslated(0.5 + offSetX, 0.5 * thickness + OffSetY, 0.5 + OffSetz);
@@ -85,7 +127,7 @@ void drawWeaponTop(double thick, double len) {
 
 void controlReflection(double x, double y, double z) {
 	//if(shoot)
-	if (x <= 0|| x  >= 8) {
+	if (x <= 0 || x >= 8) {
 		if (x <= 0)
 			printf("Left score is %d\n", getLeftScore(x, y, z));
 		if (x >= 8)
@@ -100,147 +142,118 @@ void controlReflection(double x, double y, double z) {
 	if (y <= 0.3 || y >= 7.7) {
 		if (y <= 0.3)
 			printf("Floor score is %d\n", getFloorScore(x, y, z));
-		if (y >= 7)
+		if (y >= 7.7)
 			printf("Ceil score is %d\n", getCeilScore(x, y, z));
-		//printf("hooooooooo");
+	
 		verticalMove *= -1;
 		intialZ = z;
 		intialX = x;
 		intialY = y;
 		forwadBullet = 0;
 	}
-	
+
 }
 
-void reset() {
-	forwadBullet = 0;
-	shoot = false;
-	if (rounds == 1) {
-		firstSavedX = currentBulletPositionX;
-		firstSavedY = currentBulletPositionY;
-		firstSavedZ = currentBulletPositionZ;
-	}
-	if (rounds == 2) {
-		secondSavedX = currentBulletPositionX;
-		secondSavedY = currentBulletPositionY;
-		secondSavedZ = currentBulletPositionZ;
-	}
-	rounds++;
-}
 
-void drawBullet(double thick, double len, int ballNumber) {
+void drawBullet(double thick, double len) {
 
-	if (ballNumber > rounds) return;
 	glColor3f(1, 1, 1);
-		
-	if (ballNumber < rounds) {
-		if (ballNumber == 1) {
-			glPushMatrix();
-			glTranslated(firstSavedX, firstSavedY, firstSavedZ);
-			glutSolidSphere(0.2, 20, 20);
-			glPopMatrix();
-		}
-		if (ballNumber == 2) {
-			glPushMatrix();
-			glTranslated(secondSavedX, secondSavedY, secondSavedZ);
-			glutSolidSphere(0.2, 20, 20);
-			glPopMatrix();
-		}
-	}
+	
 
 	glPushMatrix();
+
 	//glTranslated(intialX, intialY, intialZ - forwadBullet + backwadBullet);
 	glTranslated(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ);
 	currentBulletPositionZ = intialZ - forwadBullet + backwadBullet;
-	if(verticalMove>0)
-	currentBulletPositionY = intialY + abs(currentBulletPositionZ-intialZ)*tan(abs(verticalMove)*0.0174533);
+	if (verticalMove > 0)
+		currentBulletPositionY = intialY + abs(currentBulletPositionZ - intialZ)*tan(abs(verticalMove)*0.0174533);
 	else
-	currentBulletPositionY = intialY - abs(currentBulletPositionZ - intialZ)*tan(abs(verticalMove)*0.0174533);
-	
+		currentBulletPositionY = intialY - abs(currentBulletPositionZ - intialZ)*tan(abs(verticalMove)*0.0174533);
+
 	if (horizontalMove > 0) {
-		currentBulletPositionX = intialX + abs(currentBulletPositionZ-intialZ) * tan(abs(horizontalMove)*0.0174533);
+		currentBulletPositionX = intialX + abs(currentBulletPositionZ - intialZ) * tan(abs(horizontalMove)*0.0174533);
 	}
 	else {
-	currentBulletPositionX = intialX - abs(currentBulletPositionZ - intialZ) * tan(abs(horizontalMove)*0.0174533);
+		currentBulletPositionX = intialX - abs(currentBulletPositionZ - intialZ) * tan(abs(horizontalMove)*0.0174533);
 	}
 	controlReflection(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ);
- 
-	/*
-	
-	if (going && shoot) {
-		printf(" x ");
-		printf("%.3f", currentBulletPositionX);
-		printf(" y ");
-		printf("%.3f", currentBulletPositionY);
-		printf(" z ");
-		printf("%.3f", currentBulletPositionZ);
 
-	}
-	*/
-	
+
 	if (currentBulletPositionZ <= 0) {
-		//end wall
-		//printf("End wall score %d", getEndScore())
 		
-		if (rounds < 3)
-			reset();
-		else
+		    printf("End score is %d\n", getEndScore(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ));
 			going = false;
+			rest();
+		
 	}
 
 	//glScaled(2 * thick, 1, 4 * thick);
-	glutSolidSphere(0.2,20,20);
+	glutSolidSphere(0.2, 20, 20);
+	glPopMatrix();
+}
+
+void preserveHistory() {
+	glPushMatrix();
+	glColor3f(1, 1, 1);
+	if (rounds > 1) {
+		glPushMatrix();
+		glTranslated(firstSavedX, firstSavedY, firstSavedZ);
+		glutSolidSphere(0.2, 20, 20);
+		glPopMatrix();
+	}
+
+	if (rounds > 2) {
+		glPushMatrix();
+		glTranslated(secondSavedX, secondSavedY, secondSavedZ);
+		glutSolidSphere(0.2, 20, 20);
+		glPopMatrix();
+	}
+
+	if (rounds > 3) {
+		glPushMatrix();
+		glTranslated(thirdSavedX, thirdSavedY, thirdSavedZ);
+		glutSolidSphere(0.2, 20, 20);
+		glPopMatrix();
+	}
+
 	glPopMatrix();
 }
 
 void drawWeapon() {
+	preserveHistory();
 	glPushMatrix();
 	drawWeaponBase(0.2, 1);
 	//responsible for the movement of the upper part of the weapon
 	//if (!shoot) {
-	    glPushMatrix();
-		glTranslated(4, (1 / 2 + 1), 8);
-		glRotated(verticalMoveWeapon, 1, 0, 0);
-		glRotated(-horizontalMoveWeapon, 0, 1, 0);
-		glTranslated(-4, -(1 / 2 + 1), -8);
-	    drawWeaponTop(0.2, 1);
-		glPopMatrix();
+	glPushMatrix();
+	glTranslated(4, (1 / 2 + 1), 8);
+	glRotated(verticalMoveWeapon, 1, 0, 0);
+	glRotated(-horizontalMoveWeapon, 0, 1, 0);
+	glTranslated(-4, -(1 / 2 + 1), -8);
+	drawWeaponTop(0.2, 1);
+	glPopMatrix();
 	//}
 
-		if (!shoot) {
+	if (!shoot) {
 		glPushMatrix();
 		glTranslated(4, (1 / 2 + 1), 8);
 		glRotated(verticalMove, 1, 0, 0);
 		glRotated(-horizontalMove, 0, 1, 0);
 		glTranslated(-4, -(1 / 2 + 1), -8);
-		if(rounds== 1)
-		drawBullet(0.2, 1, 1);
-		if (rounds == 2)
-		drawBullet(0.2, 1, 2);
-		if (rounds == 3)
-		drawBullet(0.2, 1, 3);
+	
+		if (rounds < 4)
+			drawBullet(0.2, 1);
 		glPopMatrix();
-		drawBullet(0.2, 1, 1);
-		drawBullet(0.2, 1, 2);
-		}
-		else {
-        /*
-		glPushMatrix();
-		glTranslated(intialX, intialY, intialZ);
-		glRotated(verticalMove, 1, 0, 0);
-		glRotated(-horizontalMove, 0, 1, 0);
-		glTranslated(-intialX, -intialY, -intialZ);
-	    drawBullet(0.2, 1);
-		glPopMatrix();
-		
-		*/
-			//glTranslated(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ);
-			drawBullet(0.2, 1, 1);
-			drawBullet(0.2, 1, 2);
-			drawBullet(0.2, 1, 3);
-		}
 
-		
+	}
+	else {
+	
+		if (rounds < 4)
+		drawBullet(0.2, 1);
+	
+	}
+
+
 	glPopMatrix();
 }
 
@@ -250,7 +263,7 @@ void drawWeapon() {
 
 //red = 1, green = 2, blue = 3
 
-int getLeftScore(double x, double y, double z){
+int getLeftScore(double x, double y, double z) {
 	int row = y / 1;
 	int column = z / 1;
 	row %= 3;
@@ -434,6 +447,8 @@ void Display() {
 	drawWeapon();
 	//------------------------------------------------------
 
+
+
 	glFlush();
 
 
@@ -441,45 +456,26 @@ void Display() {
 
 void Anim()
 {
-	//horizontalMove += 1;
-	/*
-	if (inc == 1) {
-		move += 0.0001;
-		if (move >= 0.1)
-			inc = 0;
-	}
-	else if (inc == 0) {
-		move -= 0.0001;
-		if (move <= 0)
-			inc = 1;
-	}
-	*/
 	if (shoot) {
 		if (going)
-			forwadBullet += 0.001;
+			forwadBullet += 0.01;
 	}
 	glutPostRedisplay();
 }
 
 void keyboardFunc(int key, int x, int y) {
-	/*
-	printf(" angle ");
-	printf("%.3f", abs(horizontalMove));
-	printf(" value ");
-		printf("%.3f", tan(abs(horizontalMove)*0.0174533));
-	
-	*/
+
 	switch (key) {
 	case GLUT_KEY_DOWN:verticalMove -= 10; verticalMoveWeapon -= 10; break;
 	case GLUT_KEY_UP:verticalMove += 10; verticalMoveWeapon += 10; break;
 	case GLUT_KEY_LEFT:horizontalMove -= 10; horizontalMoveWeapon -= 10; break;
 	case GLUT_KEY_RIGHT:horizontalMove += 10; horizontalMoveWeapon += 10; break;
-	
+
 	}
 
 }
 
-void keyboardOtherButtons(unsigned char key , int x, int y) {
+void keyboardOtherButtons(unsigned char key, int x, int y) {
 	switch (key)
 	{
 	case ' ': shoot = true; break;
