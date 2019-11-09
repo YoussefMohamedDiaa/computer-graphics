@@ -433,15 +433,20 @@ int getLeftScore(double x, double y, double z) {
 	int row = y / 1;
 	int column = z / 1;
 	row %= 3;
+	int returnValue;
 	if (row == 0) {
-		return ((column % 3) + 1) == 1 ? -1 : (column % 3) + 1;
+		returnValue = ((column % 3) + 1) == 1 ? -1 : (column % 3) + 1;
 	}
 	if (row == 1) {
-		return (((column + 2) % 3) + 1) == 1 ? -1 : ((column + 2) % 3) + 1;
+		returnValue = (((column + 2) % 3) + 1) == 1 ? -1 : ((column + 2) % 3) + 1;
 	}
 	else {
-		return (((column + 1) % 3) + 1) == 1 ? -1 : ((column + 1) % 3) + 1;
+		returnValue = (((column + 1) % 3) + 1) == 1 ? -1 : ((column + 1) % 3) + 1;
 	}
+	if(returnValue == -1) PlaySound(TEXT("media.io_r.wav"), NULL, SND_ASYNC);
+	else if(returnValue == 2) PlaySound(TEXT("media.io_g.wav"), NULL, SND_ASYNC);
+	else if (returnValue == 3) PlaySound(TEXT("media.io_b.wav"), NULL, SND_ASYNC);
+	return returnValue;
 }
 
 int getRightScore(double x, double y, double z) {
@@ -739,7 +744,7 @@ void main(int argc, char** argv) {
 
 	glutInitWindowSize(1200, 800);
 	glutInitWindowPosition(50, 50);
-	glutCreateWindow("Lab 5");
+	glutCreateWindow("Assignment 2");
 	glutDisplayFunc(Display);
 
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
