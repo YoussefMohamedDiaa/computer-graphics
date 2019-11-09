@@ -66,7 +66,7 @@ double thirdSavedZ = 0;
 
 bool replaying = false;
 
-char* instructions = "SCORING Red: 1 Green: 2 Blue: 3 ";
+char* instructions = "SCORING Red: -1 Green: 2 Blue: 3 ";
 int shootLeft = 3;
 int totalScore = 0;
 
@@ -111,7 +111,7 @@ void rest() {
 		currentBulletPositionY = -1;
 		currentBulletPositionZ = -1;
 	}
-	if(!replaying)
+	if (!replaying)
 		rounds++;
 	replaying = false;
 }
@@ -214,13 +214,13 @@ void drawBullet(double thick, double len) {
 	//glTranslated(intialX, intialY, intialZ - forwadBullet + backwadBullet);
 	glTranslated(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ);
 	currentBulletPositionZ = intialZ - forwardBullet + backwadBullet;
-	if ((replaying?prevVerticalMove:verticalMove) > 0)
-		currentBulletPositionY = intialY + abs(currentBulletPositionZ - intialZ)*tan(abs(replaying?prevVerticalMove:verticalMove)*0.0174533);
+	if ((replaying ? prevVerticalMove : verticalMove) > 0)
+		currentBulletPositionY = intialY + abs(currentBulletPositionZ - intialZ)*tan(abs(replaying ? prevVerticalMove : verticalMove)*0.0174533);
 	else
 		currentBulletPositionY = intialY - abs(currentBulletPositionZ - intialZ)*tan(abs(replaying ? prevVerticalMove : verticalMove)*0.0174533);
 
-	if ((replaying?prevHorizontalMove: horizontalMove) > 0) {
-		currentBulletPositionX = intialX + abs(currentBulletPositionZ - intialZ) * tan(abs(replaying? prevHorizontalMove:horizontalMove)*0.0174533);
+	if ((replaying ? prevHorizontalMove : horizontalMove) > 0) {
+		currentBulletPositionX = intialX + abs(currentBulletPositionZ - intialZ) * tan(abs(replaying ? prevHorizontalMove : horizontalMove)*0.0174533);
 	}
 	else {
 		currentBulletPositionX = intialX - abs(currentBulletPositionZ - intialZ) * tan(abs(replaying ? prevHorizontalMove : horizontalMove)*0.0174533);
@@ -229,7 +229,7 @@ void drawBullet(double thick, double len) {
 
 
 	if (currentBulletPositionZ <= 0) {
-		if(!replaying)
+		if (!replaying)
 			totalScore += getEndScore(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ);
 		//printf("End score is %d\n", getEndScore(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ));
 		going = false;
@@ -279,8 +279,8 @@ void drawWeapon() {
 	//if (!shoot) {
 	glPushMatrix();
 	glTranslated(4, (1 / 2 + 1), 8);
-	glRotated(replaying?prevVerticalMoveWeapon:verticalMoveWeapon, 1, 0, 0);
-	glRotated(replaying?-prevHorizontalMoveWeapon:-horizontalMoveWeapon, 0, 1, 0);
+	glRotated(replaying ? prevVerticalMoveWeapon : verticalMoveWeapon, 1, 0, 0);
+	glRotated(replaying ? -prevHorizontalMoveWeapon : -horizontalMoveWeapon, 0, 1, 0);
 	glTranslated(-4, -(1 / 2 + 1), -8);
 	//for moving lights
 	//setupLights();
@@ -291,8 +291,8 @@ void drawWeapon() {
 	if (!shoot) {
 		glPushMatrix();
 		glTranslated(4, (1 / 2 + 1), 8);
-		glRotated(replaying?prevVerticalMove:verticalMove, 1, 0, 0);
-		glRotated(replaying?prevHorizontalMove:-horizontalMove, 0, 1, 0);
+		glRotated(replaying ? prevVerticalMove : verticalMove, 1, 0, 0);
+		glRotated(replaying ? prevHorizontalMove : -horizontalMove, 0, 1, 0);
 		glTranslated(-4, -(1 / 2 + 1), -8);
 
 		if (rounds < 4)
@@ -315,20 +315,20 @@ void drawWeapon() {
 
 //score
 
-//red = 1, green = 2, blue = 3
+//red = -1, green = 2, blue = 3
 
 int getLeftScore(double x, double y, double z) {
 	int row = y / 1;
 	int column = z / 1;
 	row %= 3;
 	if (row == 0) {
-		return (column % 3) + 1;
+		return ((column % 3) + 1) == 1 ? -1 : (column % 3) + 1;
 	}
 	if (row == 1) {
-		return ((column + 2) % 3) + 1;
+		return (((column + 2) % 3) + 1) == 1 ? -1 : ((column + 2) % 3) + 1;
 	}
 	else {
-		return ((column + 1) % 3) + 1;
+		return (((column + 1) % 3) + 1) == 1 ? -1 : ((column + 1) % 3) + 1;
 	}
 }
 
@@ -415,7 +415,7 @@ void setupCamera() {
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(-0.31 + move-horizontalCam, -0.3 + move+verticalCam, 0.25 + move-forwardCam, 0.21, 0.2, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(-0.31 + move - horizontalCam, -0.3 + move + verticalCam, 0.25 + move - forwardCam, 0.21, 0.2, 0.0, 0.0, 1.0, 0.0);
 }
 
 //room begin---------------------------------------
@@ -502,11 +502,11 @@ void dashBoard() {
 	sprintf((char*)shots, "Shots left : %d", shootLeft);
 	print(6, 7, 7, (char*)shots);
 	print(0, 7, 7, (char*)(instructions));
-	if(cameraEnhanced)
+	if (cameraEnhanced)
 		print(0, 6, 7, (char*)("Camera mode : Enhanced"));
-	else if(!cameraEnhanced)
+	else if (!cameraEnhanced)
 		print(0, 6, 7, (char*)("Camera mode : Simple"));
-	else if(replaying)
+	else if (replaying)
 		print(0, 6, 7, (char*)("Camera mode : Replaying"));
 }
 
@@ -555,27 +555,27 @@ void Anim()
 			float shift = replaying ? 0.000025 : 0.00015;
 			forwardCam += shift;
 			if (cameraEnhanced) {
-		    if((replaying ? prevHorizontalMove : horizontalMove) >0)
-				horizontalCam += shift;
-			if ((replaying ? prevHorizontalMove : horizontalMove) < 0)
-				horizontalCam -= shift;
-			if ((replaying ? prevVerticalMove : verticalMove) > 0)
-				verticalCam += shift;
-			if ((replaying ? prevVerticalMove : verticalMove) < 0)
-				verticalCam -= shift;
+				if ((replaying ? prevHorizontalMove : horizontalMove) > 0)
+					horizontalCam += shift;
+				if ((replaying ? prevHorizontalMove : horizontalMove) < 0)
+					horizontalCam -= shift;
+				if ((replaying ? prevVerticalMove : verticalMove) > 0)
+					verticalCam += shift;
+				if ((replaying ? prevVerticalMove : verticalMove) < 0)
+					verticalCam -= shift;
 			}
 		}
 	}
 	else {
-		    verticalCam = 0;
-		    horizontalCam = 0;
-			forwardCam = 0;
-		}
+		verticalCam = 0;
+		horizontalCam = 0;
+		forwardCam = 0;
+	}
 	glutPostRedisplay();
 }
 
 void keyboardFunc(int key, int x, int y) {
-	if (!replaying && !shoot) {
+	if (!replaying&&!shoot) {
 		switch (key) {
 		case GLUT_KEY_DOWN:verticalMove -= 10; verticalMoveWeapon -= 10; prevVerticalMove = verticalMove; prevVerticalMoveWeapon = verticalMoveWeapon; break;
 		case GLUT_KEY_UP:verticalMove += 10; verticalMoveWeapon += 10; prevVerticalMove = verticalMove; prevVerticalMoveWeapon = verticalMoveWeapon; break;
@@ -624,6 +624,3 @@ void main(int argc, char** argv) {
 	glutKeyboardFunc(keyboardOtherButtons);
 	glutMainLoop();
 }
-
-
-
