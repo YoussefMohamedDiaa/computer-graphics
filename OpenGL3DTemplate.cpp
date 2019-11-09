@@ -302,7 +302,7 @@ void drawWeapon() {
 	}
 	else {
 
-		if (rounds < 4)
+		if (rounds < 4 || replaying)
 			drawBullet(0.2, 1);
 
 	}
@@ -591,7 +591,7 @@ void keyboardOtherButtons(unsigned char key, int x, int y) {
 	if (!shoot) {
 		switch (key)
 		{
-		case ' ': shoot = true; prevVerticalMove = verticalMove; prevVerticalMoveWeapon = verticalMoveWeapon; prevHorizontalMove = horizontalMove; prevHorizontalMoveWeapon = horizontalMoveWeapon; break;
+		case ' ': shoot = true & (rounds < 4); if (shoot) { prevVerticalMove = verticalMove; prevVerticalMoveWeapon = verticalMoveWeapon; prevHorizontalMove = horizontalMove; prevHorizontalMoveWeapon = horizontalMoveWeapon; } break;
 		case 'c': cameraEnhanced = !cameraEnhanced; break;
 		case 'r': replaying = true & !shoot & (shootLeft < 3); shoot = replaying; break;
 		default:
