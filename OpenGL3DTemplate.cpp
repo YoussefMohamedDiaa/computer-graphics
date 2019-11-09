@@ -8,6 +8,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 
+// forwardBullet, bool replaying, dont increment score, store previous horizontal vertical move aka previous position
 
 int getLeftScore(double x, double y, double z);
 int getRightScore(double x, double y, double z);
@@ -22,13 +23,18 @@ int rounds = 1;
 
 double horizontalMove = 0;
 double verticalMove = 0;
+double prevHorizontalMove = 0;
+double prevVerticalMove = 0;
 double horizontalMoveWeapon = 0;
 double verticalMoveWeapon = 0;
+double prevHorizontalMoveWeapon = 0;
+double prevVerticalMoveWeapon = 0;
+
 bool shoot = false;
 
 bool going = true;
 bool cameraEnhanced = true;
-double forwadBullet = 0;
+double forwardBullet = 0;
 double backwadBullet = 0;
 double forwardCam = 0;
 double horizontalCam = 0;
@@ -55,7 +61,9 @@ double thirdSavedX = 0;
 double thirdSavedY = 0;
 double thirdSavedZ = 0;
 
-char* instructions = "SCORING red: 1 green 2 blue 3 ";
+bool replaying = false;
+
+char* instructions = "SCORING Red: 1 Green: 2 Blue: 3 ";
 int shootLeft = 3;
 int totalScore = 0;
 
@@ -67,34 +75,37 @@ void rest() {
 	shoot = false;
 
 	going = true;
-	forwadBullet = 0;
+	forwardBullet = 0;
 	backwadBullet = 0;
 
 
 	intialX = 4;
 	intialY = 1 / 2 + 1 + 0.4;
 	intialZ = 7.4;
-	if (rounds == 1) {
-		firstSavedX = currentBulletPositionX;
-		firstSavedY = currentBulletPositionY;
-		firstSavedZ = currentBulletPositionZ;
-	}
-	if (rounds == 2) {
-		secondSavedX = currentBulletPositionX;
-		secondSavedY = currentBulletPositionY;
-		secondSavedZ = currentBulletPositionZ;
-	}
+	if (!replaying) {
+		if (rounds == 1) {
+			firstSavedX = currentBulletPositionX;
+			firstSavedY = currentBulletPositionY;
+			firstSavedZ = currentBulletPositionZ;
+		}
+		if (rounds == 2) {
+			secondSavedX = currentBulletPositionX;
+			secondSavedY = currentBulletPositionY;
+			secondSavedZ = currentBulletPositionZ;
+		}
 
-	if (rounds == 3) {
-		thirdSavedX = currentBulletPositionX;
-		thirdSavedY = currentBulletPositionY;
-		thirdSavedZ = currentBulletPositionZ;
+		if (rounds == 3) {
+			thirdSavedX = currentBulletPositionX;
+			thirdSavedY = currentBulletPositionY;
+			thirdSavedZ = currentBulletPositionZ;
+		}
+		currentBulletPositionX = -1;
+		currentBulletPositionY = -1;
+		currentBulletPositionZ = -1;
 	}
-	currentBulletPositionX = -1;
-	currentBulletPositionY = -1;
-	currentBulletPositionZ = -1;
-
-	rounds++;
+	if(!replaying)
+		rounds++;
+	replaying = false;
 }
 
 void drawWall(double thickness, int offSetX, int OffSetY, int OffSetz) {
@@ -137,36 +148,45 @@ void drawWeaponTop(double thick, double len) {
 void controlReflection(double x, double y, double z) {
 	//if(shoot)
 	if (x <= 0 || x >= 8) {
-		if (x <= 0) {
-			totalScore += getLeftScore(x, y, z);
-			printf("Left score is %d\n", getLeftScore(x, y, z));
+		if (!replaying) {
+			if (x <= 0) {
+				totalScore += getLeftScore(x, y, z);
+				//printf("Left score is %d\n", getLeftScore(x, y, z));
+			}
+			if (x >= 8) {
+				totalScore += getRightScore(x, y, z);
+				//printf("Right score is %d\n", getRightScore(x, y, z));
+			}
 		}
-		if (x >= 8) {
-			totalScore += getRightScore(x, y, z);
-			printf("Right score is %d\n", getRightScore(x, y, z));
-		}
-		horizontalMove *= -1;
+		if (replaying)
+			prevHorizontalMove *= -1;
+		else
+			horizontalMove *= -1;
 		intialZ = z;
 		intialX = x;
 		intialY = y;
-		forwadBullet = 0;
+		forwardBullet = 0;
 
 	}
 	if (y <= 0.3 || y >= 7.7) {
-		if (y <= 0.3) {
-			totalScore += getFloorScore(x, y, z);
-			printf("Floor score is %d\n", getFloorScore(x, y, z));
+		if (!replaying) {
+			if (y <= 0.3) {
+				totalScore += getFloorScore(x, y, z);
+				//printf("Floor score is %d\n", getFloorScore(x, y, z));
+			}
+			if (y >= 7.7) {
+				totalScore += getCeilScore(x, y, z);
+				//printf("Ceil score is %d\n", getCeilScore(x, y, z));
+			}
 		}
-		if (y >= 7.7) {
-			totalScore += getCeilScore(x, y, z);
-			printf("Ceil score is %d\n", getCeilScore(x, y, z));
-		}
-
-		verticalMove *= -1;
+		if (replaying)
+			prevVerticalMove *= -1;
+		else
+			verticalMove *= -1;
 		intialZ = z;
 		intialX = x;
 		intialY = y;
-		forwadBullet = 0;
+		forwardBullet = 0;
 	}
 
 }
@@ -181,27 +201,27 @@ void drawBullet(double thick, double len) {
 
 	//glTranslated(intialX, intialY, intialZ - forwadBullet + backwadBullet);
 	glTranslated(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ);
-	currentBulletPositionZ = intialZ - forwadBullet + backwadBullet;
-	if (verticalMove > 0)
-		currentBulletPositionY = intialY + abs(currentBulletPositionZ - intialZ)*tan(abs(verticalMove)*0.0174533);
+	currentBulletPositionZ = intialZ - forwardBullet + backwadBullet;
+	if ((replaying?prevVerticalMove:verticalMove) > 0)
+		currentBulletPositionY = intialY + abs(currentBulletPositionZ - intialZ)*tan(abs(replaying?prevVerticalMove:verticalMove)*0.0174533);
 	else
-		currentBulletPositionY = intialY - abs(currentBulletPositionZ - intialZ)*tan(abs(verticalMove)*0.0174533);
+		currentBulletPositionY = intialY - abs(currentBulletPositionZ - intialZ)*tan(abs(replaying ? prevVerticalMove : verticalMove)*0.0174533);
 
-	if (horizontalMove > 0) {
-		currentBulletPositionX = intialX + abs(currentBulletPositionZ - intialZ) * tan(abs(horizontalMove)*0.0174533);
+	if ((replaying?prevHorizontalMove: horizontalMove) > 0) {
+		currentBulletPositionX = intialX + abs(currentBulletPositionZ - intialZ) * tan(abs(replaying? prevHorizontalMove:horizontalMove)*0.0174533);
 	}
 	else {
-		currentBulletPositionX = intialX - abs(currentBulletPositionZ - intialZ) * tan(abs(horizontalMove)*0.0174533);
+		currentBulletPositionX = intialX - abs(currentBulletPositionZ - intialZ) * tan(abs(replaying ? prevHorizontalMove : horizontalMove)*0.0174533);
 	}
 	controlReflection(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ);
 
 
 	if (currentBulletPositionZ <= 0) {
-
-		totalScore += getEndScore(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ);
-		printf("End score is %d\n", getEndScore(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ));
+		if(!replaying)
+			totalScore += getEndScore(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ);
+		//printf("End score is %d\n", getEndScore(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ));
 		going = false;
-		if (rounds < 4)
+		if (rounds < 4 && !replaying)
 			shootLeft--;
 		rest();
 
@@ -247,8 +267,8 @@ void drawWeapon() {
 	//if (!shoot) {
 	glPushMatrix();
 	glTranslated(4, (1 / 2 + 1), 8);
-	glRotated(verticalMoveWeapon, 1, 0, 0);
-	glRotated(-horizontalMoveWeapon, 0, 1, 0);
+	glRotated(replaying?prevVerticalMoveWeapon:verticalMoveWeapon, 1, 0, 0);
+	glRotated(replaying?-prevHorizontalMoveWeapon:-horizontalMoveWeapon, 0, 1, 0);
 	glTranslated(-4, -(1 / 2 + 1), -8);
 	//for moving lights
 	//setupLights();
@@ -259,8 +279,8 @@ void drawWeapon() {
 	if (!shoot) {
 		glPushMatrix();
 		glTranslated(4, (1 / 2 + 1), 8);
-		glRotated(verticalMove, 1, 0, 0);
-		glRotated(-horizontalMove, 0, 1, 0);
+		glRotated(replaying?prevVerticalMove:verticalMove, 1, 0, 0);
+		glRotated(replaying?prevHorizontalMove:-horizontalMove, 0, 1, 0);
 		glTranslated(-4, -(1 / 2 + 1), -8);
 
 		if (rounds < 4)
@@ -472,8 +492,10 @@ void dashBoard() {
 	print(0, 7, 7, (char*)(instructions));
 	if(cameraEnhanced)
 		print(0, 6, 7, (char*)("Camera mode : Enhanced"));
-	else
+	else if(!cameraEnhanced)
 		print(0, 6, 7, (char*)("Camera mode : Simple"));
+	else if(replaying)
+		print(0, 6, 7, (char*)("Camera mode : Replaying"));
 }
 
 void Display() {
@@ -514,18 +536,21 @@ void Anim()
 {
 	if (shoot) {
 		if (going) {
-			forwadBullet += 0.01;
-			forwardCam += 0.00015;
-
+			if (!replaying)
+				forwardBullet += 0.01;
+			else
+				forwardBullet += 0.001;
+			float shift = replaying ? 0.000025 : 0.00015;
+			forwardCam += shift;
 			if (cameraEnhanced) {
-		    if(horizontalMove>0)
-				horizontalCam += 0.00015;
-			if (horizontalMove < 0)
-				horizontalCam -= 0.00015;
-			if (verticalMove > 0)
-				verticalCam += 0.00015;
-			if (verticalMove < 0)
-				verticalCam -= 0.00015;
+		    if((replaying ? prevHorizontalMove : horizontalMove) >0)
+				horizontalCam += shift;
+			if ((replaying ? prevHorizontalMove : horizontalMove) < 0)
+				horizontalCam -= shift;
+			if ((replaying ? prevVerticalMove : verticalMove) > 0)
+				verticalCam += shift;
+			if ((replaying ? prevVerticalMove : verticalMove) < 0)
+				verticalCam -= shift;
 			}
 		}
 	}
@@ -538,24 +563,28 @@ void Anim()
 }
 
 void keyboardFunc(int key, int x, int y) {
-
-	switch (key) {
-	case GLUT_KEY_DOWN:verticalMove -= 10; verticalMoveWeapon -= 10; break;
-	case GLUT_KEY_UP:verticalMove += 10; verticalMoveWeapon += 10; break;
-	case GLUT_KEY_LEFT:horizontalMove -= 10; horizontalMoveWeapon -= 10; break;
-	case GLUT_KEY_RIGHT:horizontalMove += 10; horizontalMoveWeapon += 10; break;
-
+	if (!replaying) {
+		switch (key) {
+		case GLUT_KEY_DOWN:verticalMove -= 10; verticalMoveWeapon -= 10; prevVerticalMove = verticalMove; prevVerticalMoveWeapon = verticalMoveWeapon; break;
+		case GLUT_KEY_UP:verticalMove += 10; verticalMoveWeapon += 10; prevVerticalMove = verticalMove; prevVerticalMoveWeapon = verticalMoveWeapon; break;
+		case GLUT_KEY_LEFT:horizontalMove -= 10; horizontalMoveWeapon -= 10; prevHorizontalMove = horizontalMove; prevHorizontalMoveWeapon = horizontalMoveWeapon; break;
+		case GLUT_KEY_RIGHT:horizontalMove += 10; horizontalMoveWeapon += 10; prevHorizontalMove = horizontalMove; prevHorizontalMoveWeapon = horizontalMoveWeapon; break;
+		}
 	}
-
 }
 
 void keyboardOtherButtons(unsigned char key, int x, int y) {
-	switch (key)
-	{
-	case ' ': shoot = true; break;
-	case 'c': cameraEnhanced = !cameraEnhanced; break;
-	default:
-		break;
+	//printf("%f %f %f %f\n", horizontalMove, verticalMove, horizontalMoveWeapon, verticalMoveWeapon);
+	//printf("%f %f %f %f\n", prevHorizontalMove, prevVerticalMove, prevHorizontalMoveWeapon, prevVerticalMoveWeapon);
+	if (!shoot) {
+		switch (key)
+		{
+		case ' ': shoot = true; break;
+		case 'c': cameraEnhanced = !cameraEnhanced; break;
+		case 'r': replaying = true & !shoot & (shootLeft < 3); shoot = replaying; break;
+		default:
+			break;
+		}
 	}
 }
 
