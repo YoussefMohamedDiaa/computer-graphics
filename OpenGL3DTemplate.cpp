@@ -577,10 +577,10 @@ void Anim()
 void keyboardFunc(int key, int x, int y) {
 	if (!replaying&&!shoot) {
 		switch (key) {
-		case GLUT_KEY_DOWN:verticalMove -= 10; verticalMoveWeapon -= 10; prevVerticalMove = verticalMove; prevVerticalMoveWeapon = verticalMoveWeapon; break;
-		case GLUT_KEY_UP:verticalMove += 10; verticalMoveWeapon += 10; prevVerticalMove = verticalMove; prevVerticalMoveWeapon = verticalMoveWeapon; break;
-		case GLUT_KEY_LEFT:horizontalMove -= 10; horizontalMoveWeapon -= 10; prevHorizontalMove = horizontalMove; prevHorizontalMoveWeapon = horizontalMoveWeapon; break;
-		case GLUT_KEY_RIGHT:horizontalMove += 10; horizontalMoveWeapon += 10; prevHorizontalMove = horizontalMove; prevHorizontalMoveWeapon = horizontalMoveWeapon; break;
+		case GLUT_KEY_DOWN:verticalMove -= 10; verticalMoveWeapon -= 10; break;
+		case GLUT_KEY_UP:verticalMove += 10; verticalMoveWeapon += 10; break;
+		case GLUT_KEY_LEFT:horizontalMove -= 10; horizontalMoveWeapon -= 10; break;
+		case GLUT_KEY_RIGHT:horizontalMove += 10; horizontalMoveWeapon += 10; break;
 		}
 	}
 }
@@ -591,7 +591,7 @@ void keyboardOtherButtons(unsigned char key, int x, int y) {
 	if (!shoot) {
 		switch (key)
 		{
-		case ' ': shoot = true; break;
+		case ' ': shoot = true; prevVerticalMove = verticalMove; prevVerticalMoveWeapon = verticalMoveWeapon; prevHorizontalMove = horizontalMove; prevHorizontalMoveWeapon = horizontalMoveWeapon; break;
 		case 'c': cameraEnhanced = !cameraEnhanced; break;
 		case 'r': replaying = true & !shoot & (shootLeft < 3); shoot = replaying; break;
 		default:
