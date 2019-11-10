@@ -66,7 +66,7 @@ double thirdSavedZ = 0;
 
 bool replaying = false;
 
-char* instructions = "SCORING Red: -1 Green: 2 Blue: 3 ";
+char* instructions = "SCORING Red -1 Green 2 Blue 3 Purple 4 Cyan 5 ";
 int shootLeft = 3;
 int totalScore = 0;
 
@@ -427,25 +427,33 @@ void drawWeapon() {
 
 //score
 
-//red = -1, green = 2, blue = 3
+//red = -1, green = 2, blue = 3, purple = 4, cyan = 5
 
 int getLeftScore(double x, double y, double z) {
 	int row = y / 1;
 	int column = z / 1;
-	row %= 3;
+	row %= 5;
 	int returnValue;
 	if (row == 0) {
-		returnValue = ((column % 3) + 1) == 1 ? -1 : (column % 3) + 1;
+		returnValue = ((column % 5) + 1) == 1 ? -1 : (column % 5) + 1;
 	}
-	if (row == 1) {
-		returnValue = (((column + 2) % 3) + 1) == 1 ? -1 : ((column + 2) % 3) + 1;
+	else if (row == 1) {
+		returnValue = (((column + 3) % 5) + 1) == 1 ? -1 : ((column + 3) % 5) + 1;
+	}
+	else if (row == 2) {
+		returnValue = (((column + 1) % 5) + 1) == 1 ? -1 : ((column + 1) % 5) + 1;
+	}
+	else if (row == 3) {
+		returnValue = (((column + 4) % 5) + 1) == 1 ? -1 : ((column + 4) % 5) + 1;
 	}
 	else {
-		returnValue = (((column + 1) % 3) + 1) == 1 ? -1 : ((column + 1) % 3) + 1;
+		returnValue = (((column + 2) % 5) + 1) == 1 ? -1 : ((column + 2) % 5) + 1;
 	}
 	if(returnValue == -1) PlaySound(TEXT("media.io_r.wav"), NULL, SND_ASYNC);
 	else if(returnValue == 2) PlaySound(TEXT("media.io_g.wav"), NULL, SND_ASYNC);
 	else if (returnValue == 3) PlaySound(TEXT("media.io_b.wav"), NULL, SND_ASYNC);
+	else if (returnValue == 4) PlaySound(TEXT("media.io_p.wav"), NULL, SND_ASYNC);
+	else if (returnValue == 5) PlaySound(TEXT("media.io_c.wav"), NULL, SND_ASYNC);
 	return returnValue;
 }
 
@@ -540,10 +548,12 @@ void setupCamera() {
 
 //room begin---------------------------------------
 void colorBrick(int c) {
-	c %= 3;
+	c %= 5;
 	if (c == 0) glColor3f(1, 0, 0);
 	if (c == 1) glColor3f(0, 1, 0);
 	if (c == 2) glColor3f(0, 0, 1);
+	if (c == 3) glColor3f(1, 0, 1);
+	if (c == 4) glColor3f(0, 1, 1);
 }
 
 void buildBricks() {
