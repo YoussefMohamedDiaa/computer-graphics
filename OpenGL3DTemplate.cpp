@@ -84,6 +84,15 @@ double gunTube = 0;
 double powerUpOut = 0;
 double powerUpAngle = 0;
 
+double yBubble1 = 1.3;
+double yBubble2 = 1;
+double yBubble3 = 0.7;
+double yBubble4 = 0.4;
+
+double bubbleG1 = 1.97;
+double bubbleG2 = 1.87;
+
+
 void rest() {
 	horizontalMove = 0;
 	verticalMove = 0;
@@ -382,6 +391,7 @@ void drawWeaponTop(double thick, double len) {
 		glVertex3f(4, len / 2 + len, 8);
 		glVertex3f(4, len / 2 + len, 0);
 		glEnd();
+		glPopMatrix();
 	}
 
 	glPushMatrix();
@@ -774,24 +784,209 @@ void jars() {
 	glPushMatrix();
 	glTranslated(1.5, 2, 5.5);
 	glRotated(90, 1, 0, 0);
-	glColor3f(0, 0, 0);
+	glColor3f(0, 0, 1);
 	GLUquadricObj *quad;
 	quad = gluNewQuadric();
 	gluCylinder(quad, 0.5, 0.5, 2, 50, 50);
 	glPopMatrix();
-}
 
+
+	glPopMatrix();
+
+	glColor3f(0, 0, 0);
+	glPushMatrix();
+	glTranslatef(1.61, 1.4, 6);
+	GLUquadric *quadObjz = gluNewQuadric();
+	gluDisk(quadObjz, 0, 0.25, 50, 50);
+	glPopMatrix();
+	
+
+	glColor3f(0, 1, 0);
+	glBegin(GL_POLYGON);
+	glVertex3f(1.75,1.6,6.1);
+	glVertex3f(1.5, 1.6, 6.1);
+	glVertex3f(1.5, 0, 6.1);
+	glVertex3f(1.75, 0, 6.1);
+	glEnd();
+
+
+	glPushMatrix();
+	glTranslatef(1.62, yBubble1, 6.1);
+	GLUquadric *quadObj = gluNewQuadric();
+	gluDisk(quadObj, 0, 0.2, 50, 50);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(1.62, yBubble2, 6.1);
+	GLUquadric *quadObj2 = gluNewQuadric();
+	gluDisk(quadObj2, 0, 0.2, 50, 50);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(1.62, yBubble3, 6.1);
+	GLUquadric *quadObj3 = gluNewQuadric();
+	gluDisk(quadObj3, 0, 0.2, 50, 50);
+	glPopMatrix();
+
+
+	glPushMatrix();
+	glTranslatef(1.62, yBubble4, 6.1);
+	GLUquadric *quadObj4 = gluNewQuadric();
+	gluDisk(quadObj4, 0, 0.2, 50, 50);
+	glPopMatrix();
+
+	//up
+	glPushMatrix();
+	glTranslated(1.5, 2, 5.5);
+	glRotated(90, 1, 0, 0);
+	GLUquadric *quadObj5 = gluNewQuadric();
+	gluDisk(quadObj5, 0, 0.5, 50, 50);
+	glPopMatrix();
+
+	//7az
+	glColor3f(0, 0, 0);
+	glPushMatrix();
+	glTranslated(1.5, 2, 5.5);
+	glRotated(90, 1, 0, 0);
+	GLUquadric *quadObjk = gluNewQuadric();
+	gluDisk(quadObjk, 0, 0.55, 50, 50);
+	glPopMatrix();
+
+	glColor3f(0, 0, 0);
+	glPushMatrix();
+	glTranslated(1.5, 1.25, 5.5);
+	glRotated(90, 1, 0, 0);
+	GLUquadric *quadObjk2 = gluNewQuadric();
+	gluDisk(quadObjk2, 0, 0.55, 50, 50);
+	glPopMatrix();
+
+	glColor3f(0, 0, 0);
+	glPushMatrix();
+	glTranslated(1.5, 0.3, 5.5);
+	glRotated(90, 1, 0, 0);
+	GLUquadric *quadObjk3 = gluNewQuadric();
+	gluDisk(quadObjk3, 0, 0.55, 50, 50);
+	glPopMatrix();
+
+	glColor3f(0, 1, 0);
+	//bubbles
+	glPushMatrix();
+	glTranslated(1.5, bubbleG1, 5.5);
+	glutSolidSphere(0.11, 20, 20);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(1.2, bubbleG2, 5.5);
+	glutSolidSphere(0.11, 20, 20);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(1.8, bubbleG2, 5.5);
+	glutSolidSphere(0.11, 20, 20);
+	glPopMatrix();
+
+
+	glPushMatrix();
+	glTranslated(1.35, bubbleG1, 5.7);
+	glutSolidSphere(0.11, 20, 20);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(1.65, bubbleG1, 5.7);
+	glutSolidSphere(0.11, 20, 20);
+	glPopMatrix();
+
+}
 
 void jars2() {
 	glPushMatrix();
 	glTranslated(6, 2, 3);
 	glRotated(90, 1, 0, 0);
-	glColor3f(0, 0, 0);
+	glColor3f(0, 0, 1);
 	GLUquadricObj *quad;
 	quad = gluNewQuadric();
 	gluCylinder(quad, 0.5, 0.5, 2, 50, 50);
 	glPopMatrix();
+
+
+	glPopMatrix();
+
+	glColor3f(0, 0, 0);
+	glPushMatrix();
+	glTranslatef(6.11, 1.4, 2.5);
+	GLUquadric *quadObjz = gluNewQuadric();
+	gluDisk(quadObjz, 0, 0.25, 50, 50);
+	glPopMatrix();
+
+
+	glColor3f(0, 1, 0);
+
+
+
+
+	//up
+	glPushMatrix();
+	glTranslated(6, 2, 3);
+	glRotated(90, 1, 0, 0);
+	GLUquadric *quadObj5 = gluNewQuadric();
+	gluDisk(quadObj5, 0, 0.5, 50, 50);
+	glPopMatrix();
+
+	//7az
+	glColor3f(0, 0, 0);
+	glPushMatrix();
+	glTranslated(6, 2, 3);
+	glRotated(90, 1, 0, 0);
+	GLUquadric *quadObjk = gluNewQuadric();
+	gluDisk(quadObjk, 0, 0.55, 50, 50);
+	glPopMatrix();
+
+	glColor3f(0, 0, 0);
+	glPushMatrix();
+	glTranslated(6, 1.25, 3);
+	glRotated(90, 1, 0, 0);
+	GLUquadric *quadObjk2 = gluNewQuadric();
+	gluDisk(quadObjk2, 0, 0.55, 50, 50);
+	glPopMatrix();
+
+	glColor3f(0, 0, 0);
+	glPushMatrix();
+	glTranslated(6, 0.3, 3);
+	glRotated(90, 1, 0, 0);
+	GLUquadric *quadObjk3 = gluNewQuadric();
+	gluDisk(quadObjk3, 0, 0.55, 50, 50);
+	glPopMatrix();
+
+	glColor3f(0, 1, 0);
+	//bubbles
+	glPushMatrix();
+	glTranslated(6, bubbleG1, 3);
+	glutSolidSphere(0.11, 20, 20);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(5.7, bubbleG2, 3);
+	glutSolidSphere(0.11, 20, 20);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(6.3, bubbleG2, 3);
+	glutSolidSphere(0.11, 20, 20);
+	glPopMatrix();
+
+
+	glPushMatrix();
+	glTranslated(5.85, bubbleG1, 3.2);
+	glutSolidSphere(0.11, 20, 20);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(6.15, bubbleG1, 3.2);
+	glutSolidSphere(0.11, 20, 20);
+	glPopMatrix();
+
 }
+
 
 void Display() {
 	setupLights();
@@ -803,22 +998,32 @@ void Display() {
 
 	glScaled(0.05, 0.05, 0.05);
 
-	jars2();
+	glPushMatrix();
 	jars();
+	glPopMatrix();
+
+	glPushMatrix();
+	jars2();
+	glPopMatrix();
+
 	//dashboard
 	dashBoard();
 	//
 
 	//room-----------------------------------------------
+	glPushMatrix();
 	createGround();
 	createLeftWall();
 	createRightWall();
 	createEndWall();
 	createCeil();
+	glPopMatrix();
 	//-----------------------------------------------------
 
 	//weapon------------------------------------------------
+	glPushMatrix();
 	drawWeapon();
+	glPopMatrix();
 	//------------------------------------------------------
 
 
@@ -830,6 +1035,16 @@ void Display() {
 
 void Anim()
 {
+
+	bubbleG1 = bubbleG1 < 2 ? bubbleG1 + 0.001 : 1.85;
+	bubbleG2 = bubbleG2 < 2 ? bubbleG2 + 0.001 : 1.80;
+
+	yBubble1 = yBubble1>=0 ? yBubble1-0.01 : 1.3;
+	yBubble2 = yBubble2 >= 0 ? yBubble2 - 0.01 : 1.3;
+	yBubble3 = yBubble3 >= 0 ? yBubble3 - 0.01 : 1.3;
+	yBubble4 = yBubble4 >= 0 ? yBubble4 - 0.01 : 1.3;
+	
+
 	if (powerUp) {
 		if (powerUpOut < 1.5) {
 			powerUpOut += 0.01;;
