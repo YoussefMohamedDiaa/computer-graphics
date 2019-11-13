@@ -72,7 +72,17 @@ int totalScore = 0;
 
 bool laser = false;
 bool screenUp = false;
+bool greenScreenUp = false;
+bool gunEx = false;
+bool powerUp = false;
+bool nextPhase = false;
+bool afterNextPhase = false;
+double rotateWeap = 0;
 double screenAngle = 90;
+double greenScreenAngle = 180;
+double gunTube = 0;
+double powerUpOut = 0;
+double powerUpAngle = 0;
 
 void rest() {
 	horizontalMove = 0;
@@ -147,7 +157,6 @@ void drawWeaponBase(double thick, double len) {
 	glutSolidCube(1.0);
 	glPopMatrix();
 }
-
 void drawWeaponTop(double thick, double len) {
 	glColor3f(0, 0, 0);
 	glPushMatrix();
@@ -163,6 +172,7 @@ void drawWeaponTop(double thick, double len) {
 	glutSolidCube(1.0);
 	glPopMatrix();
 
+	//red screen
 	glPushMatrix();
 	glTranslated(4, len / 2 + len + 0.3, 8);
 	glRotated(screenAngle, 1, 0, 0);
@@ -200,9 +210,125 @@ void drawWeaponTop(double thick, double len) {
 	glVertex3f(4, len / 2 + len + 0.4 + 0.45 - 0.3, 8.01);
 
 	glEnd();
+	glPopMatrix();
 
+	//green screen
+
+	glPushMatrix();
+	glTranslated(4, len / 2 + len + 0.3, 7.5);
+	glRotated(greenScreenAngle, 0, 0, 1);
+	glTranslated(-4, -(len / 2 + len + 0.3), -7.5);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glColor4f(0, 1, 0, 0.8);
+	glBegin(GL_POLYGON);
+	glVertex3f(4 - 0.2, len / 2 + len + 0.4, 7.8);
+	glVertex3f(4 + 0.2, len / 2 + len + 0.4, 7.8);
+	glVertex3f(4 + 0.2, len / 2 + len + 0.6 + 1.3, 7.8);
+	glVertex3f(4 - 0.2, len / 2 + len + 0.6 + 1.3, 7.8);
+	glEnd();
+
+
+
+	glColor3f(0, 0, 0);
+	glBegin(GL_LINE_LOOP);
+	glVertex3f(4 - 0.2, len / 2 + len + 0.4, 7.8);
+	glVertex3f(4 + 0.2, len / 2 + len + 0.4, 7.8);
+	glVertex3f(4 + 0.2, len / 2 + len + 0.6 + 1.3, 7.8);
+	glVertex3f(4 - 0.2, len / 2 + len + 0.6 + 1.3, 7.8);
+	glEnd();
+
+	glPointSize(15);
+	glBegin(GL_POINTS);
+	if (rounds <= 3)
+		glVertex3f(4, len / 2 + len + 0.8, 7.9);
+	if (rounds <= 2)
+		glVertex3f(4, len / 2 + len + 1.2, 7.9);
+	if (rounds <= 1)
+		glVertex3f(4, len / 2 + len + 1.6, 7.9);
+
+	glEnd();
 
 	glPopMatrix();
+
+
+
+	//green
+
+
+	//power up
+
+	for (int i = 0; i < 4; i++) {
+
+		double offSet = 0;
+		double offSetX = 0;
+		if (i == 0)
+			offSet = 0.2;
+		if (i == 2)
+			offSet = -0.2;
+		if (i == 1)
+			offSetX = -0.2;
+		if (i == 3)
+			offSetX = 0.2;
+		glPushMatrix();
+		glTranslated(0, -0.4, 0.2);
+
+		glTranslated(4, len / 2 + len + 0.3, 7.6);
+		if (afterNextPhase)
+			glRotated(rotateWeap, 0, 0, 1);
+		glTranslated(-4, -(len / 2 + len + 0.3), -7.6);
+		if (nextPhase) {
+
+			glTranslated(4 + offSetX, len / 2 + len + 0.3 + offSet, 7.6);
+			if (i == 0)
+				glRotated(powerUpAngle, -1, 0, 0);
+
+			if (i == 2)
+				glRotated(powerUpAngle, 1, 0, 0);
+
+			if (i == 1) {
+				glRotated(powerUpAngle, 0, -1, 0);
+			}
+
+
+			if (i == 3)
+				glRotated(powerUpAngle, 0, 1, 0);
+
+			glTranslated(-4, -(len / 2 + len + 0.3 + offSet), -7.6);
+		}
+
+		glTranslated(4, len / 2 + len + 0.3 + offSet, 7.6);
+		glRotated(90 * i, 0, 0, 1);
+		glTranslated(-4, -(len / 2 + len + 0.3 + offSet), -7.6);
+
+		glColor4f(1, 1, 1, 1);
+		glBegin(GL_POLYGON);
+		glVertex3f(4 - 0.2, len / 2 + len + 0.4 + offSet, 7.6);
+		glVertex3f(4 + 0.2, len / 2 + len + 0.4 + offSet, 7.6);
+		glVertex3f(4 + 0.2, len / 2 + len + 0.4 + powerUpOut + offSet, 7.6);
+		glVertex3f(4 - 0.2, len / 2 + len + 0.4 + powerUpOut + offSet, 7.6);
+		glEnd();
+
+
+
+		glColor3f(0, 0, 0);
+		glBegin(GL_LINE_LOOP);
+		glVertex3f(4 - 0.2, len / 2 + len + 0.4 + offSet, 7.6);
+		glVertex3f(4 + 0.2, len / 2 + len + 0.4 + offSet, 7.6);
+		glVertex3f(4 + 0.2, len / 2 + len + 0.4 + powerUpOut + offSet, 7.6);
+		glVertex3f(4 - 0.2, len / 2 + len + 0.4 + powerUpOut + offSet, 7.6);
+		glEnd();
+
+
+		glPopMatrix();
+
+
+
+	}
+
+	//power up
+
 
 	glPushMatrix();
 	glTranslated(4, len / 2 + len + 0.3, 8);
@@ -240,10 +366,13 @@ void drawWeaponTop(double thick, double len) {
 	glPopMatrix();
 
 	glPushMatrix();
-	glTranslated(4, len / 2 + 0.9, 6.5);
+	glTranslated(4, len / 2 + 0.9, 7.7);
+	glRotated(180, 1, 0, 0);
+	glTranslated(-4, -(len / 2 + 0.9), -7.7);
+	glTranslated(4, len / 2 + 0.9, 7.7);
 	GLUquadricObj *quad;
 	quad = gluNewQuadric();
-	gluCylinder(quad, 0.16, 0.16, 1.3, 50, 50);
+	gluCylinder(quad, 0.16, 0.16, 0.3 + gunTube, 50, 50);
 	glPopMatrix();
 
 	if (laser) {
@@ -263,6 +392,7 @@ void drawWeaponTop(double thick, double len) {
 
 	glPopMatrix();
 }
+
 
 
 void controlReflection(double x, double y, double z) {
@@ -449,8 +579,8 @@ int getLeftScore(double x, double y, double z) {
 	else {
 		returnValue = (((column + 2) % 5) + 1) == 1 ? -1 : ((column + 2) % 5) + 1;
 	}
-	if(returnValue == -1) PlaySound(TEXT("media.io_r.wav"), NULL, SND_ASYNC);
-	else if(returnValue == 2) PlaySound(TEXT("media.io_g.wav"), NULL, SND_ASYNC);
+	if (returnValue == -1) PlaySound(TEXT("media.io_r.wav"), NULL, SND_ASYNC);
+	else if (returnValue == 2) PlaySound(TEXT("media.io_g.wav"), NULL, SND_ASYNC);
 	else if (returnValue == 3) PlaySound(TEXT("media.io_b.wav"), NULL, SND_ASYNC);
 	else if (returnValue == 4) PlaySound(TEXT("media.io_p.wav"), NULL, SND_ASYNC);
 	else if (returnValue == 5) PlaySound(TEXT("media.io_c.wav"), NULL, SND_ASYNC);
@@ -518,7 +648,7 @@ void drawTable(double topWid, double topThick, double legThick, double legLen) {
 }
 
 void setupLights() {
-	
+
 	GLfloat ambient[] = { 0.7f, 0.7f, 0.7, 1.0f };
 	GLfloat diffuse[] = { 0.6f, 0.6f, 0.6, 1.0f };
 	GLfloat specular[] = { 1.0f, 1.0f, 1.0, 1.0f };
@@ -532,7 +662,7 @@ void setupLights() {
 	GLfloat lightPosition[] = { -7.0f, 6.0f, 3.0f, 0.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, lightIntensity);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightIntensity);
-	
+
 }
 
 void setupCamera() {
@@ -640,6 +770,29 @@ void dashBoard() {
 		print(0, 6, 7, (char*)("Camera mode : Replaying"));
 }
 
+void jars() {
+	glPushMatrix();
+	glTranslated(1.5, 2, 5.5);
+	glRotated(90, 1, 0, 0);
+	glColor3f(0, 0, 0);
+	GLUquadricObj *quad;
+	quad = gluNewQuadric();
+	gluCylinder(quad, 0.5, 0.5, 2, 50, 50);
+	glPopMatrix();
+}
+
+
+void jars2() {
+	glPushMatrix();
+	glTranslated(6, 2, 3);
+	glRotated(90, 1, 0, 0);
+	glColor3f(0, 0, 0);
+	GLUquadricObj *quad;
+	quad = gluNewQuadric();
+	gluCylinder(quad, 0.5, 0.5, 2, 50, 50);
+	glPopMatrix();
+}
+
 void Display() {
 	setupLights();
 	setupCamera();
@@ -650,7 +803,8 @@ void Display() {
 
 	glScaled(0.05, 0.05, 0.05);
 
-
+	jars2();
+	jars();
 	//dashboard
 	dashBoard();
 	//
@@ -676,6 +830,51 @@ void Display() {
 
 void Anim()
 {
+	if (powerUp) {
+		if (powerUpOut < 1.5) {
+			powerUpOut += 0.01;;
+		}
+		else {
+			nextPhase = true;
+			if (powerUpAngle < 90) {
+				powerUpAngle += 0.1;
+			}
+			else {
+				afterNextPhase = true;
+			}
+		}
+		if (afterNextPhase)
+			rotateWeap += 0.1;
+	}
+	else {
+		if (powerUpAngle > 0) {
+			powerUpAngle -= 0.1;
+		}
+		else if (powerUpOut > 0) {
+			powerUpOut -= 0.01;
+		}
+	}
+
+	if (greenScreenUp) {
+		if (greenScreenAngle > 90) {
+			greenScreenAngle -= 0.1;
+		}
+	}
+	else {
+		if (greenScreenAngle < 180) {
+			greenScreenAngle += 0.1;
+		}
+	}
+	if (gunEx) {
+		if (gunTube < 1) {
+			gunTube += 0.01;
+		}
+	}
+	else {
+		if (gunTube > 0) {
+			gunTube -= 0.01;
+		}
+	}
 	if (screenUp) {
 		if (screenAngle > 0) {
 			screenAngle -= 0.1;
@@ -731,17 +930,21 @@ void keyboardOtherButtons(unsigned char key, int x, int y) {
 	if (!shoot) {
 		switch (key)
 		{
-		case ' ': shoot = true & (rounds < 4); 
+		case ' ': shoot = true & (rounds < 4);
 			if (shoot) {
-			prevVerticalMove = verticalMove; 
-			prevVerticalMoveWeapon = verticalMoveWeapon; 
-			prevHorizontalMove = horizontalMove; 
-			prevHorizontalMoveWeapon = horizontalMoveWeapon; 
-			PlaySound(TEXT("media.io_shooting_2.wav"), NULL, SND_ASYNC);
-		} break;
+				prevVerticalMove = verticalMove;
+				prevVerticalMoveWeapon = verticalMoveWeapon;
+				prevHorizontalMove = horizontalMove;
+				prevHorizontalMoveWeapon = horizontalMoveWeapon;
+				PlaySound(TEXT("media.io_shooting_2.wav"), NULL, SND_ASYNC);
+			} break;
 		case 'c': cameraEnhanced = !cameraEnhanced; break;
 		case 'r': replaying = true & !shoot & (shootLeft < 3); shoot = replaying; break;
 		case 'l': laser = !laser; break;
+		case 'x': gunEx = !gunEx; break;
+		case 'g': greenScreenUp = !greenScreenUp; break;
+		case 'p': powerUp = !powerUp; break;
+		case 'u': powerUp = !powerUp; greenScreenUp = !greenScreenUp;  gunEx = !gunEx; laser = !laser; screenUp = !screenUp; break;
 		case 's': screenUp = !screenUp; if (screenUp) PlaySound(TEXT("media.io_weapon.wav"), NULL, SND_ASYNC); break;
 		default:
 			break;
