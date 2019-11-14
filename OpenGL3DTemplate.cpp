@@ -77,6 +77,8 @@ bool gunEx = false;
 bool powerUp = false;
 bool nextPhase = false;
 bool afterNextPhase = false;
+bool hitJarNear = false;
+bool hitJarFar = false;
 double rotateWeap = 0;
 double screenAngle = 90;
 double greenScreenAngle = 180;
@@ -98,6 +100,8 @@ void rest() {
 	verticalMove = 0;
 	horizontalMoveWeapon = 0;
 	verticalMoveWeapon = 0;
+	hitJarNear = false;
+	hitJarFar = false;
 	if (numberOfHorizontalReflections % 2 == 1)
 		prevHorizontalMove *= -1;
 	if (numberOfVerticalReflections % 2 == 1)
@@ -455,6 +459,22 @@ void controlReflection(double x, double y, double z) {
 
 }
 
+void checkJars(double x, double y, double z) {
+	if (!replaying && !hitJarNear) {
+		if (x <= 2 && x >= 1 && y <= 2 && y >= 0 && z <= 6 && z >= 5) {
+			totalScore -= 10;
+			hitJarNear = true;
+		}
+	}
+
+	if (!replaying && !hitJarFar) {
+		if (x <= 6.6 && x >= 5.5 && y <= 2 && y >= 0 && z <= 3.5 && z >= 2.5) {
+			totalScore -= 10;
+			hitJarFar = true;
+		}
+	}
+
+}
 
 void drawBullet(double thick, double len) {
 
@@ -478,7 +498,7 @@ void drawBullet(double thick, double len) {
 		currentBulletPositionX = intialX - abs(currentBulletPositionZ - intialZ) * tan(abs(replaying ? prevHorizontalMove : horizontalMove)*0.0174533);
 	}
 	controlReflection(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ);
-
+	checkJars(currentBulletPositionX, currentBulletPositionY, currentBulletPositionZ);
 
 	if (currentBulletPositionZ <= 0) {
 		if (!replaying)
