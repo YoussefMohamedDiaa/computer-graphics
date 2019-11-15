@@ -1187,7 +1187,7 @@ void keyboardFunc(int key, int x, int y) {
 				verticalMoveWeapon -= 10;
 			}
 			else {
-				PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME);
+				//PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME);
 			}
 			break;
 		case GLUT_KEY_UP:
@@ -1196,7 +1196,7 @@ void keyboardFunc(int key, int x, int y) {
 				verticalMoveWeapon += 10;
 			}
 			else {
-				PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME);
+				//PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME);
 			}
 			break;
 		case GLUT_KEY_LEFT:
@@ -1205,7 +1205,7 @@ void keyboardFunc(int key, int x, int y) {
 				horizontalMoveWeapon -= 10;
 			}
 			else {
-				PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME);
+				//PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME);
 			}
 			break;
 		case GLUT_KEY_RIGHT:
@@ -1214,7 +1214,7 @@ void keyboardFunc(int key, int x, int y) {
 				horizontalMoveWeapon += 10; 
 			}
 			else { 
-				PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME); 
+				//PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME); 
 			} 
 			break;
 		}
