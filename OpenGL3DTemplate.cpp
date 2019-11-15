@@ -21,6 +21,10 @@ double move = 0.5;
 int inc = 1;
 int rounds = 1;
 
+int roundOneScore = 0;
+int roundTwoScore = 0;
+int roundThreeScore = 0;
+
 double horizontalMove = 0;
 double verticalMove = 0;
 double prevHorizontalMove = 0;
@@ -69,6 +73,7 @@ bool replaying = false;
 char* instructions = "SCORING Red -1 Green 2 Blue 3 Purple 4 Cyan 5 ";
 int shootLeft = 3;
 int totalScore = 0;
+int partialScore = 0;
 
 bool laser = false;
 bool screenUp = false;
@@ -122,17 +127,23 @@ void rest() {
 			firstSavedX = currentBulletPositionX;
 			firstSavedY = currentBulletPositionY;
 			firstSavedZ = currentBulletPositionZ;
+			roundOneScore = totalScore;
+			partialScore = totalScore;
 		}
 		if (rounds == 2) {
 			secondSavedX = currentBulletPositionX;
 			secondSavedY = currentBulletPositionY;
 			secondSavedZ = currentBulletPositionZ;
+			roundTwoScore = totalScore - partialScore;
+			partialScore = totalScore;
 		}
 
 		if (rounds == 3) {
 			thirdSavedX = currentBulletPositionX;
 			thirdSavedY = currentBulletPositionY;
 			thirdSavedZ = currentBulletPositionZ;
+			roundThreeScore = totalScore - partialScore;
+			partialScore = totalScore;
 		}
 		currentBulletPositionX = -1;
 		currentBulletPositionY = -1;
@@ -609,11 +620,11 @@ int getLeftScore(double x, double y, double z) {
 	else {
 		returnValue = (((column + 2) % 5) + 1) == 1 ? -1 : ((column + 2) % 5) + 1;
 	}
-	if (returnValue == -1) PlaySound(TEXT("media.io_r.wav"), NULL, SND_ASYNC);
-	else if (returnValue == 2) PlaySound(TEXT("media.io_g.wav"), NULL, SND_ASYNC);
-	else if (returnValue == 3) PlaySound(TEXT("media.io_b.wav"), NULL, SND_ASYNC);
-	else if (returnValue == 4) PlaySound(TEXT("media.io_p.wav"), NULL, SND_ASYNC);
-	else if (returnValue == 5) PlaySound(TEXT("media.io_c.wav"), NULL, SND_ASYNC);
+	if (returnValue == -1) PlaySound(TEXT("media.io_r.wav"), NULL, SND_FILENAME);
+	else if (returnValue == 2) PlaySound(TEXT("media.io_g.wav"), NULL, SND_FILENAME);
+	else if (returnValue == 3) PlaySound(TEXT("media.io_b.wav"), NULL, SND_FILENAME);
+	else if (returnValue == 4) PlaySound(TEXT("media.io_p.wav"), NULL, SND_FILENAME);
+	else if (returnValue == 5) PlaySound(TEXT("media.io_c.wav"), NULL, SND_FILENAME);
 	return returnValue;
 }
 
@@ -628,7 +639,7 @@ int getCeilScore(double x, double y, double z) {
 	return getFloorScore(x, y, z);
 }
 int getEndScore(double x, double y, double z) {
-	PlaySound(TEXT("media.io_sticky.wav"), NULL, SND_ASYNC);
+	PlaySound(TEXT("media.io_sticky.wav"), NULL, SND_FILENAME);
 	return getLeftScore(z, x, y);
 }
 
@@ -788,16 +799,35 @@ void dashBoard() {
 	char* score[20];
 	sprintf((char*)score, "Score : %d", totalScore);
 	print(4, 7, 7, (char*)score);
+	print(0, 6, 7, (char*)("Toxic Jar Score: -10"));
 	char* shots[20];
 	sprintf((char*)shots, "Shots left : %d", shootLeft);
 	print(6, 7, 7, (char*)shots);
 	print(0, 7, 7, (char*)(instructions));
 	if (cameraEnhanced)
-		print(0, 6, 7, (char*)("Camera mode : Enhanced"));
+		print(0, 5, 7, (char*)("Camera mode : Enhanced"));
 	else if (!cameraEnhanced)
-		print(0, 6, 7, (char*)("Camera mode : Simple"));
+		print(0, 5, 7, (char*)("Camera mode : Simple"));
 	else if (replaying)
-		print(0, 6, 7, (char*)("Camera mode : Replaying"));
+		print(0, 5, 7, (char*)("Camera mode : Replaying"));
+	if (shootLeft == 0) {
+		glColor3f(0, 0, 0);
+		print(3, 5, 7, (char*)("Game Over"));
+	}
+	glColor3f(0, 0, 0);
+	print(6, 6, 7, (char*)("Controls: Up Key-> up"));
+	print(6, 5, 7, (char*)("Down Key->down"));
+	print(6, 4, 7, (char*)("Right Key->right"));
+	print(6, 3, 7, (char*)("Left Key->left"));
+	char* roundOne[20];
+	char* roundTwo[20];
+	char* roundThree[20];
+	sprintf((char*)roundOne, "Round One: %d", roundOneScore);
+	sprintf((char*)roundTwo, "Round Two: %d", roundTwoScore);
+	sprintf((char*)roundThree, "Round Three: %d", roundThreeScore);
+	print(0, 4, 7, (char*)(roundOne));
+	print(0, 3, 7, (char*)(roundTwo));
+	print(0, 2, 7, (char*)(roundThree));
 }
 
 void jars() {
@@ -1151,10 +1181,42 @@ void Anim()
 void keyboardFunc(int key, int x, int y) {
 	if (!replaying && !shoot) {
 		switch (key) {
-		case GLUT_KEY_DOWN:verticalMove -= 10; verticalMoveWeapon -= 10; break;
-		case GLUT_KEY_UP:verticalMove += 10; verticalMoveWeapon += 10; break;
-		case GLUT_KEY_LEFT:horizontalMove -= 10; horizontalMoveWeapon -= 10; break;
-		case GLUT_KEY_RIGHT:horizontalMove += 10; horizontalMoveWeapon += 10; break;
+		case GLUT_KEY_DOWN:
+			if (verticalMove > -80) { 
+				verticalMove -= 10; 
+				verticalMoveWeapon -= 10;
+			}
+			else {
+				PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME);
+			}
+			break;
+		case GLUT_KEY_UP:
+			if (verticalMove < 80) { 
+				verticalMove += 10; 
+				verticalMoveWeapon += 10;
+			}
+			else {
+				PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME);
+			}
+			break;
+		case GLUT_KEY_LEFT:
+			if (horizontalMove > -80) {
+				horizontalMove -= 10;
+				horizontalMoveWeapon -= 10;
+			}
+			else {
+				PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME);
+			}
+			break;
+		case GLUT_KEY_RIGHT:
+			if (horizontalMove < 80) { 
+				horizontalMove += 10; 
+				horizontalMoveWeapon += 10; 
+			}
+			else { 
+				PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME); 
+			} 
+			break;
 		}
 	}
 }
@@ -1171,7 +1233,7 @@ void keyboardOtherButtons(unsigned char key, int x, int y) {
 				prevVerticalMoveWeapon = verticalMoveWeapon;
 				prevHorizontalMove = horizontalMove;
 				prevHorizontalMoveWeapon = horizontalMoveWeapon;
-				PlaySound(TEXT("media.io_shooting_2.wav"), NULL, SND_ASYNC);
+				PlaySound(TEXT("media.io_shooting_2.wav"), NULL, SND_FILENAME);
 			} break;
 		case 'c': cameraEnhanced = !cameraEnhanced; break;
 		case 'r': replaying = true & !shoot & (shootLeft < 3); shoot = replaying; break;
@@ -1180,7 +1242,7 @@ void keyboardOtherButtons(unsigned char key, int x, int y) {
 		case 'g': greenScreenUp = !greenScreenUp; break;
 		case 'p': powerUp = !powerUp; break;
 		case 'u': powerUp = !powerUp; greenScreenUp = !greenScreenUp;  gunEx = !gunEx; laser = !laser; screenUp = !screenUp; break;
-		case 's': screenUp = !screenUp; if (screenUp) PlaySound(TEXT("media.io_weapon.wav"), NULL, SND_ASYNC); break;
+		case 's': screenUp = !screenUp; if (screenUp) PlaySound(TEXT("media.io_weapon.wav"), NULL, SND_FILENAME); break;
 		default:
 			break;
 		}
