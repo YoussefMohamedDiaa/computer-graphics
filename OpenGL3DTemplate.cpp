@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <windows.h>
 #include <mmsystem.h>
+#include <Windows.h>
 
 // forwardBullet, bool replaying, dont increment score, store previous horizontal vertical move aka previous position
 
@@ -16,6 +17,8 @@ int getCeilScore(double x, double y, double z);
 int getEndScore(double x, double y, double z);
 int getFloorScore(double x, double y, double z);
 void setupLights();
+
+bool firstTime = true;
 
 double move = 0.5;
 int inc = 1;
@@ -620,11 +623,11 @@ int getLeftScore(double x, double y, double z) {
 	else {
 		returnValue = (((column + 2) % 5) + 1) == 1 ? -1 : ((column + 2) % 5) + 1;
 	}
-	if (returnValue == -1) PlaySound(TEXT("media.io_r.wav"), NULL, SND_FILENAME);
-	else if (returnValue == 2) PlaySound(TEXT("media.io_g.wav"), NULL, SND_FILENAME);
-	else if (returnValue == 3) PlaySound(TEXT("media.io_b.wav"), NULL, SND_FILENAME);
-	else if (returnValue == 4) PlaySound(TEXT("media.io_p.wav"), NULL, SND_FILENAME);
-	else if (returnValue == 5) PlaySound(TEXT("media.io_c.wav"), NULL, SND_FILENAME);
+	if (returnValue == -1) mciSendString(L"play \"\media.io_r.wav\"", NULL, 0, NULL);
+	else if (returnValue == 2) mciSendString(L"play \"\media.io_g.wav\"", NULL, 0, NULL);
+	else if (returnValue == 3) mciSendString(L"play \"\media.io_b.wav\"", NULL, 0, NULL);
+	else if (returnValue == 4) mciSendString(L"play \"\media.io_p.wav\"", NULL, 0, NULL);
+	else if (returnValue == 5) mciSendString(L"play \"\media.io_c.wav\"", NULL, 0, NULL);
 	return returnValue;
 }
 
@@ -639,7 +642,7 @@ int getCeilScore(double x, double y, double z) {
 	return getFloorScore(x, y, z);
 }
 int getEndScore(double x, double y, double z) {
-	PlaySound(TEXT("media.io_sticky.wav"), NULL, SND_FILENAME);
+	mciSendString(L"play \"\media.io_sticky.wav\"", NULL, 0, NULL);
 	return getLeftScore(z, x, y);
 }
 
@@ -796,6 +799,7 @@ void print(int x, int y, int z, char* string)
 }
 
 void dashBoard() {
+	glColor3f(0, 0, 0);
 	char* score[20];
 	sprintf((char*)score, "Score : %d", totalScore);
 	print(4, 7, 7, (char*)score);
@@ -1042,7 +1046,6 @@ void Display() {
 	setupLights();
 	setupCamera();
 
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
@@ -1186,17 +1189,11 @@ void keyboardFunc(int key, int x, int y) {
 				verticalMove -= 10; 
 				verticalMoveWeapon -= 10;
 			}
-			else {
-				//PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME);
-			}
 			break;
 		case GLUT_KEY_UP:
 			if (verticalMove < 80) { 
 				verticalMove += 10; 
 				verticalMoveWeapon += 10;
-			}
-			else {
-				//PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME);
 			}
 			break;
 		case GLUT_KEY_LEFT:
@@ -1204,17 +1201,11 @@ void keyboardFunc(int key, int x, int y) {
 				horizontalMove -= 10;
 				horizontalMoveWeapon -= 10;
 			}
-			else {
-				//PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME);
-			}
 			break;
 		case GLUT_KEY_RIGHT:
 			if (horizontalMove < 80) { 
 				horizontalMove += 10; 
 				horizontalMoveWeapon += 10; 
-			}
-			else { 
-				//PlaySound(TEXT("out_of_bounds.wav"), NULL, SND_FILENAME); 
 			} 
 			break;
 		}
@@ -1233,7 +1224,7 @@ void keyboardOtherButtons(unsigned char key, int x, int y) {
 				prevVerticalMoveWeapon = verticalMoveWeapon;
 				prevHorizontalMove = horizontalMove;
 				prevHorizontalMoveWeapon = horizontalMoveWeapon;
-				PlaySound(TEXT("media.io_shooting_2.wav"), NULL, SND_FILENAME);
+				mciSendString(L"play \"\media.io_shooting_2.wav\"", NULL, 0, NULL);
 			} break;
 		case 'c': cameraEnhanced = !cameraEnhanced; break;
 		case 'r': replaying = true & !shoot & (shootLeft < 3); shoot = replaying; break;
@@ -1242,7 +1233,7 @@ void keyboardOtherButtons(unsigned char key, int x, int y) {
 		case 'g': greenScreenUp = !greenScreenUp; break;
 		case 'p': powerUp = !powerUp; break;
 		case 'u': powerUp = !powerUp; greenScreenUp = !greenScreenUp;  gunEx = !gunEx; laser = !laser; screenUp = !screenUp; break;
-		case 's': screenUp = !screenUp; if (screenUp) PlaySound(TEXT("media.io_weapon.wav"), NULL, SND_FILENAME); break;
+		case 's': screenUp = !screenUp; if (screenUp) mciSendString(L"play \"\media.io_weapon.wav\"", NULL, 0, NULL); break;
 		default:
 			break;
 		}
@@ -1251,12 +1242,15 @@ void keyboardOtherButtons(unsigned char key, int x, int y) {
 
 void main(int argc, char** argv) {
 	glutInit(&argc, argv);
-
 	glutInitWindowSize(1200, 800);
 	glutInitWindowPosition(50, 50);
 	glutCreateWindow("Assignment 2");
 	glutDisplayFunc(Display);
-
+	PlaySound(TEXT("background.wav"), NULL, SND_ASYNC | SND_LOOP);
+	if (firstTime) {
+		mciSendString(L"play \"\background.wav\" repeat", NULL, 0, NULL);
+		firstTime = false;
+	}
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
