@@ -784,7 +784,7 @@ void createCeil() {
 }
 //room end---------------------------------
 
-void print(int x, int y, int z, char* string)
+void print(double x, double y, double z, char* string)
 {
 	int len, i;
 
@@ -823,6 +823,11 @@ void dashBoard() {
 	print(6, 5, 7, (char*)("Down Key->down"));
 	print(6, 4, 7, (char*)("Right Key->right"));
 	print(6, 3, 7, (char*)("Left Key->left"));
+	print(6, 2, 7, (char*)("Fire Key->space"));
+	print(6, 1, 7, (char*)("Camera Key->c"));
+	print(0, 1, 7, (char*)("Replay Key->r"));
+	print(0, 7.5, 7, (char*)("Weapon Features Keys->x,s,g,l,p"));
+	print(3, 7.5, 7, (char*)("Bonus group 1 implemented"));
 	char* roundOne[20];
 	char* roundTwo[20];
 	char* roundThree[20];
